@@ -19,7 +19,7 @@ python create_quiz_bank.py --pl_repo <the folder containing the PL repo>
 ```
 The questions will be added to `<pl_repo>/questions/QuestionBank/`.
 
-## Orgainze questions 
+## Organize questions 
 
 ## Convert questions to MCQ or coding 
 
