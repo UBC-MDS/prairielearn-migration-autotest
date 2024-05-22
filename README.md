@@ -29,8 +29,12 @@ python create_quiz_bank.py --pl_repo <the folder containing the PL repo>
 The questions will be added to `<pl_repo>/questions/QuestionBank/`.
 
 ## Organize questions 
-This step requires OpenAI API access key. 
+This step requires OpenAI API access key. Follow the [instruction](https://platform.openai.com/docs/quickstart/step-2-set-up-your-api-key)) to set up your API key. 
 
+First create a txt file in `<lo_file_path>`. Then run to organize the question bank automatically:
+```
+python organize_questions.py --pl_repo <pl_repo> --lo_file_path <lo_file_path>
+```
 
 ## Convert questions to MCQ or coding 
 
