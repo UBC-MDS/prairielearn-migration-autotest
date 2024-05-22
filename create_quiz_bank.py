@@ -1,15 +1,11 @@
-# From PL repo
-# modified by Vincent Liu
+# From PL repo, modified by Vincent Liu
 
 import os
 import re
-from os import path
 import json
 import argparse
-from collections import OrderedDict
 import uuid
-
-import canvas
+from src import canvas
 
 
 def file_name_only(name):
@@ -18,33 +14,9 @@ def file_name_only(name):
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--pl_repo", help="Directory where PrairieLearn repo is stored")
-# parser.add_argument("--pl_course_instance",
-#                     help="Course instance where assessment will be created")
 parser.add_argument(
     "--question_folder", default="QuestionBank", help="Questions will be added to"
 )
-parser.add_argument(
-    "-t",
-    "--assessment-type",
-    default=None,
-    help="Assessment type to assign this assessment to",
-)
-parser.add_argument(
-    "-s",
-    "--assessment-set",
-    default="Quiz",
-    help="Assessment set to assign this assessment to",
-)
-parser.add_argument(
-    "-n",
-    "--assessment-number",
-    default="",
-    help="Assessment set to assign this assessment to",
-)
-parser.add_argument(
-    "--topic", default="None", help="Assessment set to assign this assessment to"
-)
-parser.add_argument("-d", "--debug", action="store_true", help="Enable debugging mode")
 args = parser.parse_args()
 canvas = canvas.Canvas(args=args)
 
@@ -56,7 +28,7 @@ with open("config.json") as f:
 
 course_dict = config_data["course_id"]
 for course_id in course_dict.keys():
-    print(f"Reading data from Canvas...")
+    print("Reading data from Canvas...")
     course = canvas.course(course_id, prompt_if_needed=True)
     print("Using course: %s / %s" % (course["term"]["name"], course["course_code"]))
 
@@ -107,7 +79,8 @@ for course_id in course_dict.keys():
             print()
 
             # automatically set titles, as title will be changed later
-            question_title = "{}-{}".format(
+            question_title = "{}-{}-{}".format(
+                file_name_only(quiz["title"]),
                 file_name_only(question["question_name"]),
                 question["id"],
             )
