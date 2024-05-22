@@ -29,7 +29,7 @@ question_list.sort()
 with open(args.lo_file_path, "r") as f:
     name_mapping = f.read()
 
-print('processing {} questions'.format(len(question_list)))
+print("processing {} questions".format(len(question_list)))
 question_check_list = []
 count = -1
 for question_folder in question_list:
@@ -117,7 +117,9 @@ for question_folder in question_list:
     print("Copy Question {} from {} to {}.".format(count, question_folder, new_folder))
 
 if len(question_check_list):
-    print("Some question are not correctly copied. Please check question_check_list.txt")
+    print(
+        "Some question are not correctly copied. Please check question_check_list.txt"
+    )
     with open("question_check_list.txt", "w") as f:
         for q in question_check_list:
             f.write("{}\n".format(q))
