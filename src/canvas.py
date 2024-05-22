@@ -1,46 +1,26 @@
-import argparse
+import os
 from collections import OrderedDict
-import requests, json, os
-
-
-class ExtendAction(argparse.Action):
-    """Add argparse action='extend' for pre-3.8 python"""
-
-    def __call__(self, parser, namespace, values, option_string=None):
-        items = getattr(namespace, self.dest) or []
-        items.extend(values)
-        setattr(namespace, self.dest, items)
+import requests
+import json
 
 
 class Canvas:
     """Canvas"""
 
-    def __init__(self, token=None, args=None):
-        self.debug = args.debug if args else False
-        with open(os.path.join(os.path.dirname(__file__), "config.json")) as config:
-            self.config = json.load(config)
-        self.token = self.config["access_token"]
+    def __init__(self, args=None, debug=False):
+        if args is not None:
+            # set access token
+            with open(args.config_file) as f:
+                self.config = json.load(f)
+            os.environ["CANVAS_ACCESS_TOKEN"] = self.config["access_token"]
+
+        self.debug = debug
+        self.token = os.environ["CANVAS_ACCESS_TOKEN"]
         self.token_header = {"Authorization": f"Bearer {self.token}"}
 
-        ###
         self.api_url = "https://canvas.ubc.ca/api/"
         self.url_prefix = "v1"
         self.new_url_prefix = "quiz/v1"
-        ###
-
-    @staticmethod
-    def add_arguments(parser, course=True, quiz=False, assignment=False):
-        """docstring"""
-
-        parser.add_argument(
-            "-d", "--debug", action="store_true", help="Enable debugging mode"
-        )
-        if course:
-            parser.add_argument("-c", "--course", type=int, help="Course ID")
-        if quiz:
-            parser.add_argument("-q", "--quiz", type=int, help="Quiz ID")
-        if assignment:
-            parser.add_argument("-a", "--assignment", type=int, help="Assignment ID")
 
     def request(self, request, stop_at_first=False):
         """docstring"""
@@ -110,7 +90,7 @@ class Course(Canvas):
     """Course"""
 
     def __init__(self, canvas, course_data):
-        super().__init__(canvas.token)
+        super().__init__()
         self.data = course_data
         self.id = course_data["id"]
         self.course_url_prefix = f"{self.url_prefix}/courses/{self.id}"
@@ -156,7 +136,7 @@ class CourseSubObject(Canvas):
     ):
         # MUST be available before calling self.get_course.
         self.parent = parent
-        super().__init__(self.get_course().token)
+        super().__init__()
 
         self.data = data
         self.id_field = id_field
@@ -365,12 +345,12 @@ class NewQuiz(CourseSubObject):
 #         )
 
 
-class Page(CourseSubObject):
-
-    def __init__(self, course, page_data):
-        super().__init__(
-            course, "pages", page_data, id_field="url", request_param_name="wiki_page"
-        )
-
-    def update_page(self, data=None):
-        return self.update(data)
+# class Page(CourseSubObject):
+#
+#     def __init__(self, course, page_data):
+#         super().__init__(
+#             course, "pages", page_data, id_field="url", request_param_name="wiki_page"
+#         )
+#
+#     def update_page(self, data=None):
+#         return self.update(data)

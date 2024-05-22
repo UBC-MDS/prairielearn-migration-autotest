@@ -14,16 +14,16 @@ def file_name_only(name):
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--pl_repo", help="Directory where PrairieLearn repo is stored")
-parser.add_argument(
-    "--question_folder", default="QuestionBank", help="Questions will be added to"
-)
+parser.add_argument("--question_folder", default="QuestionBank")
+parser.add_argument("--config_file", default="config.json")
+parser.add_argument("--debug", default=False, help="Enable debugging mode")
 args = parser.parse_args()
-canvas = canvas.Canvas(args=args)
+canvas = canvas.Canvas(args=args, debug=args.debug)
 
 if not os.path.exists(os.path.join(args.pl_repo, "infoCourse.json")):
     raise Exception("Provided directory is not a PrairieLearn repository")
 
-with open("config.json") as f:
+with open(args.config_file) as f:
     config_data = json.load(f)
 
 course_dict = config_data["course_id"]
@@ -48,11 +48,11 @@ for course_id in course_dict.keys():
         question_title = file_name_only(quiz["title"])
 
         # can remove pl_quiz later
-        assessment_type = (
-            args.assessment_type
-            if args.assessment_type
-            else "Exam" if quiz.has_time_limit() else "Homework"
-        )
+        # assessment_type = (
+        #     args.assessment_type
+        #     if args.assessment_type
+        #     else "Exam" if quiz.has_time_limit() else "Homework"
+        # )
         # pl_quiz = {
         #     "uuid": str(uuid.uuid4()),
         #     "type": assessment_type,
@@ -113,7 +113,7 @@ for course_id in course_dict.keys():
                     "uuid": str(uuid.uuid4()),
                     "type": "v3",
                     "title": question["question_name"],
-                    "topic": args.topic,
+                    "topic": "None",
                     "tags": ["fromcanvas"],
                 }
                 if question["question_type"] in [
