@@ -2,7 +2,8 @@ import json
 import argparse
 from bs4 import BeautifulSoup
 import os
-from utils import autograder_info_dict
+from src.autograde_utils import autograder_info_dict
+
 # import html2text
 # from glob import glob
 
