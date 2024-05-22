@@ -1,16 +1,16 @@
 import json
 import argparse
-import html2text
 from bs4 import BeautifulSoup
 import os
-
+from utils import autograder_info_dict
+# import html2text
 # from glob import glob
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--pl_repo", default="pl-ubc-dsci523")
+parser.add_argument("--pl_repo", default="pl-ubc-dsci512")
 parser.add_argument(
     "--question_folder",
-    default="lec_tidy-eval/obj_data-masking/filter-select-planes",
+    default="lec_recursive-algo/obj_write-recursive/unravel-nested-lists",
 )
 parser.add_argument(
     "--question_type",
@@ -20,8 +20,15 @@ parser.add_argument(
     "--initial_code_block",
     default="code",
 )
+parser.add_argument(
+    "--language",
+    default="python",
+)
 args = parser.parse_args()
 assert args.question_type in ["coding", "mcq", "numeric"]
+assert args.language in ["r", "python"]
+
+autograder_info = autograder_info_dict[args.language]
 
 question_folder = "{}/questions/{}".format(args.pl_repo, args.question_folder)
 with open("{}/info.json".format(question_folder), "r") as f:
@@ -45,8 +52,8 @@ if args.question_type == "coding":
     question_info["gradingMethod"] = "External"
     question_info["externalGradingOptions"] = {
         "enabled": True,
-        "image": "prairielearn/grader-r",
-        "entrypoint": "r_autograder/run.sh",
+        "image": autograder_info["image"],
+        "entrypoint": autograder_info["entrypoint"],
         "timeout": 5,
     }
 
@@ -76,17 +83,27 @@ if args.question_type == "coding":
     question_html = str(soup)
     file_editor_blocks = soup.find_all("pl-file-editor")
     if len(file_editor_blocks) == 0:
-        question_html += '<pl-file-editor file-name="solution.R" ace-mode="ace/mode/r" source-file-name="initial_code.R"></pl-file-editor>'
+        question_html += '<pl-file-editor file-name="{}" ace-mode="{}" source-file-name="{}"></pl-file-editor>'.format(
+            autograder_info["file-name"],
+            autograder_info["ace-mode"],
+            autograder_info["source-file-name"],
+        )
         question_html += "<pl-external-grader-results></pl-external-grader-results>"
 
-    with open("{}/initial_code.R".format(question_folder), "w") as f:
+    # create the initial code file
+    with open(
+        "{}/{}".format(question_folder, autograder_info["source-file-name"]), "w"
+    ) as f:
         f.write(code_text)
 
+    # creat test folders with a solution file
     test_folder = "{}/tests".format(question_folder)
     if os.path.exists(test_folder) is False:
         os.mkdir(test_folder)
 
-    with open("{}/ans.R".format(test_folder), "w") as f:
+    with open(
+        "{}/{}".format(test_folder, autograder_info["solution-file-name"]), "w"
+    ) as f:
         f.write("")
 
 elif args.question_type == "mcq":
