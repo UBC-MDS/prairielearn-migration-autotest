@@ -40,7 +40,7 @@ with open("{}/question.html".format(question_folder), "r") as f:
 # h = html2text.HTML2Text()
 # question_text = h.handle(question_html)
 
-# update info.json
+# update tags in info.json
 tag_list = question_info["tags"]
 if "manual" in tag_list:
     tag_list.remove("manual")
@@ -50,6 +50,7 @@ if args.question_type not in tag_list:
 question_info["tags"] = tag_list
 
 if args.question_type == "coding":
+    # add external autograder
     question_info["gradingMethod"] = "External"
     question_info["externalGradingOptions"] = {
         "enabled": True,
@@ -81,6 +82,7 @@ if args.question_type == "coding":
     for text_editor_block in text_editor_blocks:
         text_editor_block.extract()
 
+    # add code editor
     question_html = str(soup)
     file_editor_blocks = soup.find_all("pl-file-editor")
     if len(file_editor_blocks) == 0:
