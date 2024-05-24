@@ -10,7 +10,7 @@ def create_slug(lo_text, model_name="gpt-3.5-turbo"):
                 "role": "system",
                 "content": "You are a course instructor, and working on organizing quiz questions based on the learning objectives. The tasks are:\n"
                 + "Step 1: For each lecture and course objective, create a slug. It is okay to combine some objectives into one slug, if the objectives are very closely related based on your knowledge about the material. The slug is a string (possibly with hyphens to connect words or abbreviation) and should be readable. For example: read-data or time-complexity."
-                + "Step 2: The output should follow the format: <output>\nLecture 1: <lecture title>\n lec_<lecture_slug>/obj_<obj_slug>: <the corresponding objective>\nlec_<lecture_slug>/obj_<obj_slug>: <the corresponding objective>\n</output>",
+                + "Step 2: The output should follow the format: <output>\nLecture 1: <lecture title>\nlec_<lecture_slug>/obj_<obj_slug>: <the corresponding objective>\nlec_<lecture_slug>/obj_<obj_slug>: <the corresponding objective>\n</output>",
             },
             {
                 "role": "user",
