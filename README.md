@@ -2,9 +2,13 @@
 
 This repository is a collection of scripts and instructions for migrating questions from Canvas to Prairielearn
 
+- These instructions assume an understanding of `Python`, `git` and `command line` usage
+
 ## 1. Set up 
 
 > Only do this the very first time you start working on this project
+
+- This step assumes you have already cloned this repository to your local machine
 
 ```
 virtualenv --no-download .env
