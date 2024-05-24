@@ -2,9 +2,13 @@
 
 This repository is a collection of scripts and instructions for migrating questions from Canvas to Prairielearn
 
+- These instructions assume an understanding of `Python`, `git` and `command line` usage
+
 ## 1. Set up 
 
 > Only do this the very first time you start working on this project
+
+- This step assumes you have already cloned this repository to your local machine
 
 ```
 virtualenv --no-download .env
@@ -50,7 +54,7 @@ You can add multiple courses and quizzes by extending the JSON file like so:
 
 ```
 {
-    "access_token": "<your Canvas access key>",
+    "access_token": "supersecretkey",
     "course_id": {
         "<123456>": [123123, 456456, ...],
         "<789012>": [456456, 789789, ...]
