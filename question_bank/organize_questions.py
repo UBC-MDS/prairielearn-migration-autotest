@@ -3,22 +3,23 @@ import argparse
 import html2text
 from glob import glob
 import os
-from src.openai_call import get_folder_name
+from openai_utils import get_folder_name
 
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--pl_repo", help="Directory where PrairieLearn repo is stored")
 parser.add_argument(
+    "--slug_file_path", default="", help="Directory where the slug is stored"
+)
+parser.add_argument(
     "--question_folder", default="QuestionBank", help="Questions will be added to"
 )
 parser.add_argument(
-    "--lo_file_path", help="Directory where the learning objective is stored"
+    "--model_type", default="gpt-3.5-turbo", help="gpt-4-0125-preview or gpt-3.5-turbo"
 )
 args = parser.parse_args()
-print(args)
 
 h = html2text.HTML2Text()
-
 question_root_folder = "{}/questions".format(args.pl_repo)
 question_list = glob(
     "{}/{}/*".format(question_root_folder, args.question_folder), recursive=True
@@ -26,8 +27,12 @@ question_list = glob(
 question_list.sort()
 
 # TODO: check the file exists
-with open(args.lo_file_path, "r") as f:
-    name_mapping = f.read()
+if os.path.exists(args.slug_file_path):
+    print(f"reading {args.slug_file_path}")
+    with open(args.slug_file_path, "r") as f:
+        name_mapping = f.read()
+else:
+    raise Exception(f"{args.slug_file_path} does not exists.")
 
 print("processing {} questions".format(len(question_list)))
 question_check_list = []
@@ -54,7 +59,7 @@ for question_folder in question_list:
         question_check_list.append(question_folder)
         continue
 
-    respond = get_folder_name(name_mapping, question_text, model_name="gpt-3.5-turbo")
+    respond = get_folder_name(name_mapping, question_text, model_name=args.model_type)
     respond = respond.replace(".", "")
     outputs = respond.split("\n")
     if len(outputs) != 3:

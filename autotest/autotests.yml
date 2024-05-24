@@ -1,12 +1,9 @@
-python3:
-    setup: "from hashlib import sha1"
-    hash: 'sha1({{snippet}}.encode("utf-8")+b"{{salt}}").hexdigest()'
+python:
+    setup: "from code_feedback import Feedback\nfrom pl_helpers import name, points\nfrom utils import source_ans, source_student, MyTestCase\n\n\nclass Test(MyTestCase):\n"
     dispatch: "type({{snippet}})"
-    normalize: "str({{snippet}})"
-    check: 'assert {{snippet}} == """{{value}}""", """{{message}}"""'
-    success: "print('Success!')"
+    test_case_template: "    @points({{score}})\n    @name('test {{test_expr}}')\n    def test_{{count}}(self):\n        ans_env = source_ans()\n        student_env = source_student()\n        if Feedback.{{check_fn}}('test {{test_expr}}', eval('{{test_expr}}', ans_env), eval('{{test_expr}}', student_env)):\n            Feedback.set_score({{score}})\n        else:\n            Feedback.set_score(0)\n\n"
 
-    templates:
+    test_expr_templates:
         default:
             - test: "type({{snippet}})"
               fail: "type of {{snippet}} is not correct"
@@ -113,22 +110,31 @@ python3:
             - test: "{{snippet}}.reindex(sorted({{snippet}}.columns), axis=1)"
               fail: "some or all elements of {{snippet}} are not correct"
 
-ir:
-    setup: 'library(tinytest)'
-    dispatch: 'class({{snippet}})'
-    # normalize: 'toString({{snippet}})'
-    # check: 'stopifnot("{{message}}"= setequal({{snippet}}, "{{value}}"))'
-    # success: "print('Success!')"
+r:
+    setup: "library(tinytest)\n\nstudent <- new.env()\nsource('/grade/student/submission.R', student)\n\nsolution <- new.env()\nsource('solution.R', solution)\n\n"
+    dispatch: "class({{snippet}})"
+    test_case_template: "## @title test {{test_expr}}\n## @score {{score}}\nexpect_equal(eval(parse(text = '{{test_expr}}'), envir = solution), eval(parse(text = '{{test_expr}}'), envir = student))\n\n"
 
-    templates:
+    test_expr_templates:
         default:
             - test: "class({{snippet}})"
               fail: "type of {{snippet}} is not correct"
+              point: 0.5
 
             - test: "{{snippet}}"
               fail: "value of {{snippet}} is not correct"
+              point: 0.5
 
-        dataframe:
+        tbl:
+            - test: "class({{snippet}})"
+              fail: "type of {{snippet}} is not correct"
+              point: 0.5
+
+            - test: "{{snippet}}"
+              fail: "value of {{snippet}} is not correct"
+              point: 0.5
+
+        data.frame:
             - test: "class({{snippet}})"
               fail: "type of {{snippet}} is not correct"
               point: 0.5

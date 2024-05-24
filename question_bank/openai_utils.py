@@ -1,8 +1,35 @@
 from openai import OpenAI
 
 
+def create_slug(lo_text, model_name="gpt-3.5-turbo"):
+    client = OpenAI()
+
+    completion = client.chat.completions.create(
+        messages=[
+            {
+                "role": "system",
+                "content": "You are a course instructor, and working on organizing quiz questions based on the learning objectives. The tasks are:\n"
+                + "Step 1: For each lecture and course objective, create a slug. It is okay to combine some objectives into one slug, if the objectives are very closely related based on your knowledge about the material. The slug is a string (possibly with hyphens to connect words or abbreviation) and should be readable. For example: read-data or time-complexity."
+                + "Step 2: The output should follow the format: <output>\nLecture 1: <lecture title>\n lec_<lecture_slug>/obj_<obj_slug>: <the corresponding objective>\nlec_<lecture_slug>/obj_<obj_slug>: <the corresponding objective>\n</output>",
+            },
+            {
+                "role": "user",
+                "content": "This is the learning objective for the course: {}".format(
+                    lo_text
+                ),
+            },
+        ],
+        model=model_name,
+    )
+    response = (
+        completion.choices[0]
+        .message.content.replace("<output>\n", "")
+        .replace("</output>", "")
+    )
+    return response
+
+
 def get_folder_name(name_mapping, question_text, model_name="gpt-3.5-turbo"):
-    # # "gpt-4-0125-preview", "gpt-3.5-turbo"
     client = OpenAI()
 
     completion = client.chat.completions.create(

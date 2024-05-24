@@ -5,7 +5,7 @@ import re
 import json
 import argparse
 import uuid
-from src import canvas
+import canvas
 
 
 def file_name_only(name):
