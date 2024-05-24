@@ -61,7 +61,7 @@ You can add multiple courses and quizzes by extending the JSON file like so:
 
 We can create a question bank by importing the quizzes to a PL repo:
 ```
-python create_quiz_bank.py --pl_repo <the folder containing the PL repo> --config_file config.json
+python migration/create_quiz_bank.py --pl_repo <the folder containing the PL repo> --config_file config.json
 ```
 The questions will be added to `<pl_repo>/questions/QuestionBank/`.
 
@@ -82,13 +82,13 @@ The questions will be added to `<pl_repo>/questions/QuestionBank/`.
 The script generates a slug for each course containing the lecture and learning objective:
 - Make sure the file path is within the same folder as the learning objective file (i.e. in the course repository)
 ```
-python create_lo_slug.py --lo_file_path <lo_file_path>
+python question_bank/create_lo_slug.py --lo_file_path <lo_file_path>
 ```
 Spend some time reviewing the `slug.txt` file and modify the learning objectives to fix any mistakes made by ChatGPT (it is faster to do this now than later).
 
 Then run the script to label each question with the corresponding lecture and learning objective slug: 
 ```
-python organize_questions.py --pl_repo <pl_repo> --lo_file_path <slug_path>
+python question_bank/organize_questions.py --pl_repo <pl_repo> --lo_file_path <slug_path>
 ```
 
 ### 3.2. Convert questions to MCQ or coding questions
@@ -104,7 +104,7 @@ This step requires manually checking each question
 - If the question was not aligned with the lecture and learning objective, move the question to the correct folder manually.
 - We might want to change a manually-graded question to a coding question or a MCQ question. To do so, run the script
 ```
-python covert_autograde.py --pl_repo <pl_repo> --question_folder <question_folder> --question_type <coding or mcq> --initial_code_block <> --language <python or r>
+python question_bank/covert_autograde.py --pl_repo <pl_repo> --question_folder <question_folder> --question_type <coding or mcq> --initial_code_block <> --language <python or r>
 ```
 If `question_type=='coding'`, the script will find the code in initial_code_block and move it to a new file called `initial_code.R` or `initial_code.py`, and create files needed for autograding. 
 If `question_type=='mcq'`, you will need to automatically update the question. 
