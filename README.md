@@ -35,9 +35,11 @@ The questions will be added to `<pl_repo>/questions/QuestionBank/`.
 This step requires OpenAI API access key. Follow the [instruction](https://platform.openai.com/docs/quickstart/step-2-set-up-your-api-key)) to set up your API key. 
 
 The script generates slug for each lecture and learning objective:
+- Make sure the file path is within the same folder as the learning objective file (i.e. in the course repository)
 ```
 python create_lo_slug.py --lo_file_path <lo_file_path>
 ```
+Spend some time reviewing the `slug.txt` file and modify the learning objectives to fix any mistakes made by ChatGPT (it is faster to do this now than later).
 
 Then run the script to label each question with the corresponding lecture and learning objective slug: 
 ```
