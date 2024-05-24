@@ -1,4 +1,4 @@
-# Prairielearn Tools for Migration \& Autotest
+# Prairielearn Tools for Migration \& Question Bank \& Autotest
 
 The repo contains scripts for the following tasks. 
 
