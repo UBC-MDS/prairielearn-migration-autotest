@@ -113,6 +113,36 @@ python question_bank/covert_autograde.py --pl_repo <pl_repo> --question_folder <
 If `question_type=='coding'`, the script will find the code in initial_code_block and move it to a new file called `initial_code.R` or `initial_code.py`, and create files needed for autograding. 
 If `question_type=='mcq'`, you will need to automatically update the question. 
 
+
+
 ## 4. Generating test files for coding questions
 
 > Note: Multiple choice questions should already be complete at this stage
+#### 4.1 Write solution files for coding questions
+The first step is to create solution files for all coding questions. For R coding question, name the solution file `solution.R`. For python question, name the solution file `ans.py`. 
+
+Add a line starting with `# AUTOTEST ` to indicate the variable to test. For example, 
+```r
+grades_data <- read_csv("grades.csv", skip = 2)
+# AUTOTEST grades_data
+```
+For coding questions with test cases, use `# TESTSETUP` to add the test cases. For example, 
+```
+def unravel(x):
+    if not isinstance(x, list):
+        return [x]
+
+    output = []
+    for x_i in x:
+        output += unravel(x_i)
+    return output
+
+# TESTSETUP x1 = [1, [2, 3], 4, [5, [6, 7], 8], 9];x2 = [1, 2, 3, [4, 5]]
+# AUTOTEST unravel(x1);unravel(x2)
+```
+
+#### 4.2 Generate test files automatically 
+Run  the script to generate test files automatically. 
+```
+python instantiatetests.py --pl_repo <pl_repo> --question_folder <question_folder> --language <coding_language>
+```

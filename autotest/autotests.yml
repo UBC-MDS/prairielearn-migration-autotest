@@ -1,13 +1,19 @@
 python:
+    pl:
+        image: "prairielearn/grader-python"
+        entrypoint: "/python_autograder/run.sh"
+        ace_mode: "ace/mode/python"
+        submission_file_name: "user_code.py"
+        source_file_name: "initial_code.py"
+        solution_file_name: "ans.py"
+        test_file_name: "test.py"
+
     setup: "from code_feedback import Feedback\nfrom pl_helpers import name, points\nfrom utils import source_ans, source_student, MyTestCase\n\n\nclass Test(MyTestCase):\n"
     dispatch: "type({{snippet}})"
-    test_case_template: "    @points({{score}})\n    @name('test {{test_expr}}')\n    def test_{{count}}(self):\n        ans_env = source_ans()\n        student_env = source_student()\n        if Feedback.{{check_fn}}('test {{test_expr}}', eval('{{test_expr}}', ans_env), eval('{{test_expr}}', student_env)):\n            Feedback.set_score({{score}})\n        else:\n            Feedback.set_score(0)\n\n"
+    test_case_template: "    @points({{score}})\n    @name('test {{test_expr}}')\n    def test_{{count}}(self):\n        ans_env = source_ans({{source_params}})\n        student_env = source_student({{source_params}})\n        if Feedback.{{check_fn}}('{{test_expr}}', eval('{{test_expr}}', ans_env), eval('{{test_expr}}', student_env)):\n            Feedback.set_score({{score}})\n        else:\n            Feedback.set_score(0)\n\n"
 
     test_expr_templates:
         default:
-            - test: "type({{snippet}})"
-              fail: "type of {{snippet}} is not correct"
-
             - test: "{{snippet}}"
               fail: "value of {{snippet}} is not correct"
 
@@ -36,15 +42,6 @@ python:
               fail: "value of {{snippet}} is not correct"
 
         list:
-            - test: "type({{snippet}})"
-              fail: "type of {{snippet}} is not list. {{snippet}} should be a list"
-
-            - test: "len({{snippet}})"
-              fail: "length of {{snippet}} is not correct"
-
-            - test: "sorted(map(str, {{snippet}}))"
-              fail: "values of {{snippet}} are not correct"
-
             - test: "{{snippet}}"
               fail: "order of elements of {{snippet}} is not correct"
 
@@ -111,6 +108,15 @@ python:
               fail: "some or all elements of {{snippet}} are not correct"
 
 r:
+    pl:
+        image: "prairielearn/grader-r"
+        entrypoint: "r_autograder/run.sh"
+        ace_mode: "ace/mode/r"
+        submission_file_name: "submission.R"
+        source_file_name: "initial_code.R"
+        solution_file_name: "solution.R"
+        test_file_name: "test.R"
+
     setup: "library(tinytest)\n\nstudent <- new.env()\nsource('/grade/student/submission.R', student)\n\nsolution <- new.env()\nsource('solution.R', solution)\n\n"
     dispatch: "class({{snippet}})"
     test_case_template: "## @title test {{test_expr}}\n## @score {{score}}\nexpect_equal(eval(parse(text = '{{test_expr}}'), envir = solution), eval(parse(text = '{{test_expr}}'), envir = student))\n\n"
