@@ -83,13 +83,15 @@ The questions will be added to `<pl_repo>/questions/QuestionBank/`.
 
 > Repeat this step for each course
 
-- The learning objective file is called the `slug.txt` file
+- First find the learning objective of the course you are working on. Ask the instructor to review the learning objective first.
 
 The script generates a slug for each course containing the lecture and learning objective:
 - Make sure the file path is within the same folder as the learning objective file (i.e. in the course repository)
 ```
 python question_bank/create_lo_slug.py --lo_file_path <lo_file_path>
 ```
+where `<lo_file_path>` is the path to the learning objective file, and the script will generate another file called `slug.txt`. 
+
 Spend some time reviewing the `slug.txt` file and modify the learning objectives to fix any mistakes made by ChatGPT (it is faster to do this now than later).
 
 Then run the script to label each question with the corresponding lecture and learning objective slug: 
