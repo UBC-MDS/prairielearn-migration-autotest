@@ -63,6 +63,8 @@ You can add multiple courses and quizzes by extending the JSON file like so:
 ```
 #### 2.1.2. Create the question bank
 
+> Requires the directory file structure from GitHub Repository
+
 We can create a question bank by importing the quizzes to a PL repo:
 ```
 python migration/create_quiz_bank.py --pl_repo <the folder containing the PL repo> --config_file config.json
@@ -97,52 +99,156 @@ python question_bank/organize_questions.py --pl_repo <pl_repo> --lo_file_path <s
 
 ### 3.2. Convert questions to MCQ or coding questions
 
+> Repeat all of this section for every question in a course
+
 - Each question will require different edits depending on the accuracy of ChatGPT and the style of question
 - Make sure to check the question type and only follow the steps relevant to that question
 
-#### 3.2.1. Manual Review
+#### 3.2.1. Verify ChatGPT Output
 
-> Repeat this step for every question in a course
+> Folders can be moved at any point if required
 
-This step requires manually checking each question
+Sometimes ChatGPT may make a mistake, for example when a question is a learning objective for multiple courses
+
+- Compare the question with the `slug.txt` to make sure the question is in the right lecture (i.e. folder)
 - If the question was not aligned with the lecture and learning objective, move the question to the correct folder manually.
-- We might want to change a manually-graded question to a coding question or a MCQ question. To do so, run the script
+
+#### 3.2.2. Determine the Question Parameters
+
+> This is to identify the question and provide the information to relevant scripts
+
+
+
+At this stage, every question is labelled as *manually* graded in the `config.json` file
+
+- We might want to change a manually-graded question to another type (e.g. *coding* or *MCQ*)
+- We need to make note of the `question_type`, the `initial_code_block`, and the programming `language` used
+
+[//]: <> (# Create white space in the markdown)
+
+- Open `<question_folder>/question.html` and find the HTML tag that corresponds to the `initial_code_block` (pre, code or auto if unknown)
+   - Typically `pre` or `code`
+   - Can leave as `auto` if unsure but may have undesired results
+- Choose the correct `question_type`
+   - Typically `mcq` or `coding`
+- Identify the language
+   - Either `r` or `python`
+   - `SQL` is not covered here
+
+
+#### 3.2.3 Create Solutions
+
+> This will require an understanding of the course content
+>> You will need to do one of the following, make the solution yourself, ask ChatGPT, or consult the professor
+
+Skip ahead to the section that is relevant for your question type
+
+##### MCQ
+
+> This is for questions that could have multiple solutions, i.e. not TRUE/FALSE or numeric options
+>> This documentation will be updated for those questions as time goes by
+
+- Run the following script and fill in the blanks from **3.2.2**
+   - This will create the file structures required for a `MCQ`
+   - It will also edit the `config.json`
+
+```
+python question_bank/covert_autograde.py --pl_repo <pl_repo> --question_folder <question_folder> --question_type <coding or mcq> --language <python or r>
+```
+
+- Now you must go through a series of steps to prepare the solution for autograding
+   - It is hoped in the future that some of these steps will be moved to the above script
+
+1. Create the choices for each option
+   - See the [documentation](https://prairielearn.readthedocs.io/en/latest/elements/) for further examples
+   - Replace `<boolean>` with `TRUE` or `FALSE` depending on the choice
+
+```
+<pl-multiple-choice answers-name="ans">
+  <pl-answer correct="<boolean>">Option 1</pl-answer>
+  <pl-answer correct="<boolean>">Option 2</pl-answer>
+  ...
+</pl-multiple-choice>
+
+```
+2. Save them inside of `<question_folder>/question.html`
+3. Make sure the question is correct
+   - i.e. the wording matches the question type
+4. Push the change to *PrairieLearn* and test it
+
+##### Coding
+
+- Run the following script and fill in the blanks from **3.2.2**
+   - This will create the file structures required for a `coding` question
+   - It will create either `initial_code.R` or `initial_code.py`
+   - It will create a `test` folder with a solution file for the relevant language
+   - It will also edit the `config.json`
+
 ```
 python question_bank/covert_autograde.py --pl_repo <pl_repo> --question_folder <question_folder> --question_type <coding or mcq> --initial_code_block <> --language <python or r>
 ```
-If `question_type=='coding'`, the script will find the code in initial_code_block and move it to a new file called `initial_code.R` or `initial_code.py`, and create files needed for autograding. 
-If `question_type=='mcq'`, you will need to automatically update the question. 
+
+- Now you must go through a series of steps to prepare the solution for autograding
+   - It is hoped in the future that some of these steps will be moved to the above script
+
+1. Write the code in the solution file
+2. Make sure this file can be run
+   - Import any libraries
+   - Make sure any supplemantary files exist (i.e. data files that are read)
+   - Store the solution in a variable
+3. Append one of the following to the solution file to tell PrairieLearn what to autograde
+   - `# AUTOTEST <variable_name>`
+   - `# AUTOTEST <function_name(value)>`
+4. Make sure the initial code block can run if it has the correct solution
+   - Anything we are not asking them should be in the file (i.e. libraries)
+
+###### Example
+
+>Add a line starting with `# AUTOTEST ` to indicate the variable to test. For example, 
+>```r
+>grades_data <- read_csv("grades.csv", skip = 2)
+># AUTOTEST grades_data
+>```
+>For coding questions with test cases, use `# TESTSETUP` to add the test cases. For example, 
+>```
+>def unravel(x):
+>    if not isinstance(x, list):
+>        return [x]
+>
+>    output = []
+>    for x_i in x:
+>        output += unravel(x_i)
+>    return output
+>
+># TESTSETUP x1 = [1, [2, 3], 4, [5, [6, 7], 8], 9];x2 = [1, 2, 3, [4, 5]]
+># AUTOTEST unravel(x1);unravel(x2)
+>```
+
+##### Numeric
+> We do not cover this yet
+
+##### Manual
+> Manual questions should already be in the correct format
 
 
 
-## 4. Generating test files for coding questions
+## 4. Generating test files
 
-> Note: Multiple choice questions should already be complete at this stage
-#### 4.1 Write solution files for coding questions
-The first step is to create solution files for all coding questions. For R coding question, name the solution file `solution.R`. For python question, name the solution file `ans.py`. 
+> Run this once for each course
+>
+>>Multiple choice questions should already be complete at this stage
+>
+>> This may be extended later to more than just coding questions
 
-Add a line starting with `# AUTOTEST ` to indicate the variable to test. For example, 
-```r
-grades_data <- read_csv("grades.csv", skip = 2)
-# AUTOTEST grades_data
+### 4.1. Coding Questions
+
+> This assumes all questions are in the format as described in the [documentation](https://prairielearn.readthedocs.io/en/latest/question/)
+
+#### 4.1.1. Automatic Creation
+- Run  the script to generate test files automatically
+   - Currently `language` is still required, this may be automated later
 ```
-For coding questions with test cases, use `# TESTSETUP` to add the test cases. For example, 
-```
-def unravel(x):
-    if not isinstance(x, list):
-        return [x]
-
-    output = []
-    for x_i in x:
-        output += unravel(x_i)
-    return output
-
-# TESTSETUP x1 = [1, [2, 3], 4, [5, [6, 7], 8], 9];x2 = [1, 2, 3, [4, 5]]
-# AUTOTEST unravel(x1);unravel(x2)
+python autotest/instantiatetests.py --pl_repo <pl_repo> --question_folder <question_folder> --language <coding_language>
 ```
 
-#### 4.2 Generate test files automatically 
-Run  the script to generate test files automatically. 
-```
-python instantiatetests.py --pl_repo <pl_repo> --question_folder <question_folder> --language <coding_language>
-```
+- Push the changes to PrairieLearn
