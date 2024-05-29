@@ -8,22 +8,10 @@ import yaml
 parser = argparse.ArgumentParser()
 parser.add_argument("--pl_repo", default="pl-ubc-dsci523")
 parser.add_argument("--question_folder")
-parser.add_argument(
-    "--question_type",
-    default="coding",
-)
-parser.add_argument(
-    "--initial_code_block",
-    default="none",
-)
-parser.add_argument(
-    "--language",
-    default="python",
-)
-parser.add_argument(
-    "--config_path",
-    default="autotest/autotests.yml",
-)
+parser.add_argument("--question_type", default="coding")
+parser.add_argument("--initial_code_block", default="none")
+parser.add_argument("--language", default="python")
+parser.add_argument("--config_path", default="autotest/autotests.yml")
 args = parser.parse_args()
 assert args.question_type in ["coding", "mcq", "numeric"]
 assert args.language in ["r", "python"]
@@ -54,7 +42,7 @@ if args.question_type == "coding":
         "enabled": True,
         "image": autograder_info["image"],
         "entrypoint": autograder_info["entrypoint"],
-        "timeout": 1,
+        "timeout": 30,
     }
 
     # update question.html
