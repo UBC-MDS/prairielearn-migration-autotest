@@ -188,15 +188,19 @@ r:
         character:
             - test: "class({{snippet}})"
               fail: "type of {{snippet}} is not list"
+              point: 0.25
 
             - test: "length({{snippet}})"
               fail: "length of {{snippet}} is not correct"
+              point: 0.25
 
             - test: "tolower({{snippet}})"
               fail: "value of {{snippet}} is not correct"
+              point: 0.25
 
             - test: "{{snippet}}"
               fail: "correct string value of {{snippet}} but incorrect case of letters"
+              point: 0.25
 
         logical:
             - test: "class({{snippet}})"

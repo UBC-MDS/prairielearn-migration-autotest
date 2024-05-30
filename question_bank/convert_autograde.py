@@ -6,10 +6,12 @@ import yaml
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--pl_repo", default="pl-ubc-dsci523")
+parser.add_argument("--pl_repo")
 parser.add_argument("--question_folder")
 parser.add_argument("--question_type", default="coding")
 parser.add_argument("--initial_code_block", default="none")
+parser.add_argument("--create_data_file", default=False)
+parser.add_argument("--create_server_file", default=False)
 parser.add_argument("--language", default="python")
 parser.add_argument("--config_path", default="autotest/autotests.yml")
 args = parser.parse_args()
@@ -47,6 +49,7 @@ if args.question_type == "coding":
 
     # update question.html
     soup = BeautifulSoup(question_html)
+
     # extract code text to initial code
     code_text = ""
     if args.initial_code_block in ["code", "auto"]:
@@ -65,19 +68,22 @@ if args.question_type == "coding":
             code_text = code_blocks[-1].get_text(separator="\n", strip=True)
             code_blocks[-1].extract()
 
+    # remove text editor
     blocks_to_remove = soup.find_all("pl-rich-text-editor")
     for block_to_remove in blocks_to_remove:
         block_to_remove.extract()
 
+    # remove code editor
     blocks_to_remove = soup.find_all("pl-file-editor")
     for block_to_remove in blocks_to_remove:
         block_to_remove.extract()
 
+    # remove grader result
     blocks_to_remove = soup.find_all("pl-external-grader-results")
     for block_to_remove in blocks_to_remove:
         block_to_remove.extract()
 
-    # add code editor
+    # add code editor and grader result
     question_html = str(soup)
     file_editor_blocks = soup.find_all("pl-file-editor")
     if len(file_editor_blocks) == 0:
@@ -100,15 +106,17 @@ if args.question_type == "coding":
     else:
         print(f"{source_file_name} already exists")
 
-    # creat test folders with a solution file
+    # creat a test folder
     test_folder = "{}/tests".format(question_folder)
     if os.path.exists(test_folder) is False:
         os.mkdir(test_folder)
     else:
+        # remove existing ans.R
         if os.path.exists("{}/ans.R".format(test_folder)):
             print("remove {}/ans.R".format(test_folder))
             os.remove("{}/ans.R".format(test_folder))
 
+    # creat a solution file in the test folder
     solution_file_name = "{}/{}".format(
         test_folder, autograder_info["solution_file_name"]
     )
@@ -117,6 +125,22 @@ if args.question_type == "coding":
             f.write("")
     else:
         print(f"{solution_file_name} already exists")
+
+    if args.create_data_file:
+        # create an empty data.txt. Note we need to add data manually
+        data_file_name = "{}/data.txt".format(test_folder)
+        if os.path.exists(data_file_name) is False:
+            with open(data_file_name, "w") as f:
+                f.write("")
+
+        if args.create_server_file:
+            # create a server file to read data.txt
+            server_file_name = "{}/server.py".format(question_folder)
+            if os.path.exists(server_file_name) is False:
+                with open(server_file_name, "w") as f:
+                    f.write(
+                        'import prairielearn as pl\nimport pandas as pd\n\n\ndef generate(data):\n    df = pd.read_csv("tests/data.txt")\n    data["params"]["df"] = pl.to_json(df.head(10))\n'
+                    )
 
 elif args.question_type == "mcq":
     question_info.pop("gradingMethod", None)
