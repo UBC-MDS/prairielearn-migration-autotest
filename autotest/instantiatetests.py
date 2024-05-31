@@ -10,10 +10,6 @@ parser.add_argument("--pl_question_folder", default="pl-ubc-dsci523/questions")
 parser.add_argument("--config_path", default="autotests.yml")
 args = parser.parse_args()
 
-print("[INFO] loading template autotests.yml...")
-with open(args.config_path, "r") as f:
-    autotest_config_dict = yaml.safe_load(f)
-
 
 def find_folders_with_file(base_dir, target_file="question.html"):
     folders_with_file = []
@@ -26,7 +22,14 @@ def find_folders_with_file(base_dir, target_file="question.html"):
     return folders_with_file
 
 
+print("[INFO] loading template autotests.yml...")
+with open(args.config_path, "r") as f:
+    autotest_config_dict = yaml.safe_load(f)
+
+
 all_question_folders = find_folders_with_file(args.pl_question_folder)
+if len(all_question_folders) == 0:
+    print("[INFO] No question under {}".format(args.pl_question_folder))
 
 for question_folder in all_question_folders:
     # find the coding question is R or python
@@ -84,7 +87,7 @@ for question_folder in all_question_folders:
             if "tbl" in list(dispatch_result):
                 dispatch_result = "tbl"
             elif "data.frame" in list(dispatch_result):
-                dispatch_result = "tbl"
+                dispatch_result = "data.frame"
             robjects.r("setwd('{}')".format(current_wd))
             print("############")
 
