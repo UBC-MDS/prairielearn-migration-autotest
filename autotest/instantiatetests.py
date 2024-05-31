@@ -87,7 +87,7 @@ for question_folder in all_question_folders:
             if "tbl" in list(dispatch_result):
                 dispatch_result = "tbl"
             elif "data.frame" in list(dispatch_result):
-                dispatch_result = "tbl"
+                dispatch_result = "data.frame"
             robjects.r("setwd('{}')".format(current_wd))
             print("############")
 
