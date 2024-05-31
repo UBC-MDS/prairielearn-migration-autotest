@@ -248,9 +248,10 @@ python question_bank/covert_autograde.py --pl_repo <pl_repo> --question_folder <
 
 #### 4.1.1. Automatic Creation
 - Run  the script to generate test files automatically
-   - Currently `language` is still required, this may be automated later
+  - The script would find all folders with `question.html` under `pl_question_folder`, so `pl_question_folder` can be at any level (for example, the entire course, one lecture, or just one question)
+  - `config_path` is the path to the file [autotests.yml](https://github.com/VincentLiu3/prairielearn-migrationa-autotest/blob/main/autotest/autotests.yml) 
 ```
-python autotest/instantiatetests.py --pl_repo <pl_repo> --question_folder <question_folder> --language <coding_language>
+python autotest/instantiatetests.py --pl_question_folder <pl_question_folder> --config_path <config_path>
 ```
 
 - Push the changes to PrairieLearn
