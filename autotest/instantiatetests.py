@@ -82,14 +82,18 @@ for question_folder in all_question_folders:
             dispatch_result = robjects.r(
                 autotest_config["dispatch"].replace("{{snippet}}", snippet)
             )
+            robjects.r("setwd('{}')".format(current_wd))
+            print("############")
+
             if len(list(dispatch_result)) == 1:
                 dispatch_result = dispatch_result[0]
             if "tbl" in list(dispatch_result):
                 dispatch_result = "tbl"
             elif "data.frame" in list(dispatch_result):
                 dispatch_result = "data.frame"
-            robjects.r("setwd('{}')".format(current_wd))
-            print("############")
+            if dispatch_result not in autotest_config["test_expr_templates"].keys():
+                dispatch_result = "default"
+                print("unknown data type. use default test template.")
 
             # create test file
             test_templates = autotest_config["test_expr_templates"][dispatch_result]
@@ -120,6 +124,9 @@ for question_folder in all_question_folders:
             dispatch_result = dispatch_result.__name__
             print("############")
 
+            if dispatch_result not in autotest_config["test_expr_templates"].keys():
+                dispatch_result = "default"
+                print("unknown data type. use default test template.")
             test_templates = autotest_config["test_expr_templates"][dispatch_result]
             for template in test_templates:
                 test_expr_template = SimpleTemplate(template["test"])
