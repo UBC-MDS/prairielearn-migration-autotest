@@ -101,7 +101,7 @@ python question_bank/organize_questions.py --pl_repo <pl_repo> --lo_file_path <s
 
 ### 3.2. Convert questions to MCQ or coding questions
 
-> Repeat all of this section for every question in a course
+> Repeat all of **3.2.** section for every question in a course
 
 - Each question will require different edits depending on the accuracy of ChatGPT and the style of question
 - Make sure to check the question type and only follow the steps relevant to that question
@@ -138,10 +138,30 @@ At this stage, every question is labelled as *manually* graded in the `config.js
    - `SQL` is not covered here
 
 
-#### 3.2.3 Create Solutions
+#### 3.2.3. Create Solutions
 
 > This will require an understanding of the course content
 >> You will need to do one of the following, make the solution yourself, ask ChatGPT, or consult the professor
+
+- The `convert_autograde` script has the following optional parameters that can be applied to each question type
+   - `--create_data_file True` - this will create an empty `data.txt` file
+   - `--create_server_file True` - this will create an empty `server.py` file
+
+##### Example
+
+> Add this to the `server.py` file
+>
+> ````
+>def generate(data):
+>  df = pd.read_csv("tests/data.txt")
+>  data["params"]["df"] = pl.to_json(df.head(10))
+>````
+>
+> Replace the data in the `question.html` file with this
+>
+> ````
+><pl-dataframe params-name="df" show-index="false" show-dimensions="false" digits="4" display-language="r" show-python="false"></pl-dataframe>
+>````
 
 Skip ahead to the section that is relevant for your question type
 
@@ -150,12 +170,14 @@ Skip ahead to the section that is relevant for your question type
 > This is for questions that could have multiple solutions, i.e. not TRUE/FALSE or numeric options
 >> This documentation will be updated for those questions as time goes by
 
-- Run the following script and fill in the blanks from **3.2.2**
+- Run the following script and fill in the blanks from **3.2.2.**
    - This will create the file structures required for a `MCQ`
    - It will also edit the `config.json`
 
+> Don't forget the optional parameters if you need them
+
 ```
-python question_bank/covert_autograde.py --pl_repo <pl_repo> --question_folder <question_folder> --question_type <coding or mcq> --language <python or r>
+python question_bank/convert_autograde.py --pl_repo <pl_repo> --question_folder <question_folder> --question_type <coding or mcq> --language <python or r>
 ```
 
 - Now you must go through a series of steps to prepare the solution for autograding
@@ -180,14 +202,16 @@ python question_bank/covert_autograde.py --pl_repo <pl_repo> --question_folder <
 
 ##### Coding
 
-- Run the following script and fill in the blanks from **3.2.2**
+- Run the following script and fill in the blanks from **3.2.2.**
    - This will create the file structures required for a `coding` question
    - It will create either `initial_code.R` or `initial_code.py`
    - It will create a `test` folder with a solution file for the relevant language
    - It will also edit the `config.json`
 
+> Don't forget the optional parameters if you need them
+
 ```
-python question_bank/covert_autograde.py --pl_repo <pl_repo> --question_folder <question_folder> --question_type <coding or mcq> --initial_code_block <> --language <python or r>
+python question_bank/convert_autograde.py --pl_repo <pl_repo> --question_folder <question_folder> --question_type <coding or mcq> --initial_code_block <> --language <python or r>
 ```
 
 - Now you must go through a series of steps to prepare the solution for autograding
