@@ -150,6 +150,7 @@ for question_folder in all_question_folders:
                 )
                 test_count += 1
 
-    print(f"[INFO] added test file to {test_path}")
-    with open(test_path, "w") as f:
-        f.write(test_file)
+    if len(snippets) > 0:
+        print(f"[INFO] added test file to {test_path}")
+        with open(test_path, "w") as f:
+            f.write(test_file)
