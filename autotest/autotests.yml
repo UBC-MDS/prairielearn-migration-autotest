@@ -8,7 +8,7 @@ python:
         solution_file_name: "ans.py"
         test_file_name: "test.py"
 
-    setup: "from code_feedback import Feedback\nfrom pl_helpers import name, points\nfrom utils import source_ans, source_student, MyTestCase\n\n\nclass Test(MyTestCase):\n"
+    testfile_template: "from code_feedback import Feedback\nfrom pl_helpers import name, points\nfrom utils import source_ans, source_student, MyTestCase\n\n\nclass Test(MyTestCase):\n"
     dispatch: "type({{snippet}})"
     test_case_template: "    @points({{score}})\n    @name('test {{test_expr}}')\n    def test_{{count}}(self):\n        ans_env = source_ans({{source_params}})\n        student_env = source_student({{source_params}})\n        if Feedback.{{check_fn}}('{{test_expr}}', eval('{{test_expr}}', ans_env), eval('{{test_expr}}', student_env)):\n            Feedback.set_score({{score}})\n        else:\n            Feedback.set_score(0)\n\n"
 
@@ -117,9 +117,10 @@ r:
         solution_file_name: "solution.R"
         test_file_name: "test.R"
 
-    setup: "library(tinytest)\n\nstudent <- new.env()\nsource('/grade/student/submission.R', student)\n\nsolution <- new.env()\nsource('solution.R', solution)\n\n"
-    dispatch: "class({{snippet}})"
+    testfile_template: "library(tinytest)\nsource('/grade/run/utils.R')\n\n"
+    source_template: "solution <- source_solution({{solution_params}})\nstudent <- source_submission({{submission_params}})\n\n"
     test_case_template: "## @title test {{test_expr}}\n## @score {{score}}\nexpect_equal(eval(parse(text = '{{test_expr}}'), envir = solution), eval(parse(text = '{{test_expr}}'), envir = student))\n\n"
+    dispatch: "class({{snippet}})"
 
     test_expr_templates:
         default:
@@ -149,41 +150,39 @@ r:
               fail: "value of {{snippet}} is not correct"
               point: 0.5
 
-        integer:
-            - test: "class({{snippet}})"
-              fail: "type of {{snippet}} is not integer"
-
-            - test: "length({{snippet}})"
-              fail: "length of {{snippet}} is not correct"
-
-            - test: "sort({{snippet}})"
-              fail: "values of {{snippet}} are not correct"
-
         numeric:
             - test: "class({{snippet}})"
               fail: "type of {{snippet}} is not double"
+              point: 0.25
 
             - test: "round({{snippet}}, 2)"
               fail: "value of {{snippet}} is not correct (rounded to 2 decimal places)"
+              point: 0.25
 
             - test: "length({{snippet}})"
               fail: "length of {{snippet}} is not correct"
+              point: 0.25
 
             - test: "sort({{snippet}})"
               fail: "values of {{snippet}} are not correct"
+              point: 0.25
 
         list:
             - test: "class({{snippet}})"
               fail: "type of {{snippet}} is not list"
+              point: 0.25
 
             - test: "length({{snippet}})"
               fail: "length of {{snippet}} is not correct"
+              point: 0.25
 
             - test: "sort(c(names({{snippet}})))"
               fail: "values of {{snippet}} names are not correct"
+              point: 0.25
 
             - test: "{{snippet}}"
               fail: "order of elements of {{snippet}} is not correct"
+              point: 0.25
 
         character:
             - test: "class({{snippet}})"
@@ -205,6 +204,8 @@ r:
         logical:
             - test: "class({{snippet}})"
               fail: "type of {{snippet}} is not logical"
+              point: 0.5
 
             - test: "{{snippet}}"
               fail: "logical value of {{snippet}} is not correct"
+              point: 0.5

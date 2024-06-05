@@ -5,13 +5,25 @@ import os
 import yaml
 
 
+def str2bool(v):
+    if isinstance(v, bool):
+        return v
+    if v.lower() in ("true", "t"):
+        return True
+    elif v.lower() in ("false", "f"):
+        return False
+    else:
+        raise argparse.ArgumentTypeError("Boolean value expected.")
+
+
 parser = argparse.ArgumentParser()
 parser.add_argument("--pl_repo")
 parser.add_argument("--question_folder")
 parser.add_argument("--question_type", default="coding")
+parser.add_argument("--use_server_files", default=True, type=str2bool)
 parser.add_argument("--initial_code_block", default="none")
-parser.add_argument("--create_data_file", default=False)
-parser.add_argument("--create_server_file", default=False)
+parser.add_argument("--create_data_file", default=False, type=str2bool)
+parser.add_argument("--create_server_file", default=False, type=str2bool)
 parser.add_argument("--mcq_block", default="checkbox")
 parser.add_argument("--mcq_partial_credict", default="false")
 parser.add_argument("--language", default="python")
@@ -50,9 +62,15 @@ if args.question_type == "coding":
         "entrypoint": autograder_info["entrypoint"],
         "timeout": 30,
     }
+    if args.use_server_files:
+        # if use_server_files, use our own autograder scripts
+        question_info["externalGradingOptions"]["serverFilesCourse"] = ["autograder/"]
+        question_info["externalGradingOptions"][
+            "entrypoint"
+        ] = "/grade/serverFilesCourse/autograder/run.sh"
 
     # update question.html
-    soup = BeautifulSoup(question_html)
+    soup = BeautifulSoup(question_html, features="html.parser")
 
     # extract code text to initial code
     code_text = ""
@@ -134,6 +152,7 @@ if args.question_type == "coding":
         # create an empty data.txt. Note we need to add data manually
         data_file_name = "{}/data.txt".format(test_folder)
         if os.path.exists(data_file_name) is False:
+            print(f"create {data_file_name}")
             with open(data_file_name, "w") as f:
                 f.write("")
 
@@ -141,6 +160,7 @@ if args.question_type == "coding":
             # create a server file to read data.txt
             server_file_name = "{}/server.py".format(question_folder)
             if os.path.exists(server_file_name) is False:
+                print(f"create {server_file_name}")
                 with open(server_file_name, "w") as f:
                     f.write(
                         'import prairielearn as pl\nimport pandas as pd\n\n\ndef generate(data):\n    df = pd.read_csv("tests/data.txt")\n    data["params"]["df"] = pl.to_json(df.head(10))\n'
@@ -185,7 +205,8 @@ elif args.question_type == "mcq":
 with open("{}/info.json".format(question_folder), "w") as f:
     json.dump(question_info, f, indent=2)
 
+# run BeautifulSoup again to make the question_html string an HTML file
+soup = BeautifulSoup(question_html, features="html.parser")
+question_html = str(soup)
 with open("{}/question.html".format(question_folder), "w") as f:
     f.write(question_html)
-
-print("Done")
