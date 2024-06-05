@@ -12,16 +12,15 @@ parser.add_argument("--question_type", default="coding")
 parser.add_argument("--initial_code_block", default="none")
 parser.add_argument("--create_data_file", default=False)
 parser.add_argument("--create_server_file", default=False)
+parser.add_argument("--mcq_block", default="checkbox")
+parser.add_argument("--mcq_partial_credict", default="false")
 parser.add_argument("--language", default="python")
 parser.add_argument("--config_path", default="autotest/autotests.yml")
 args = parser.parse_args()
 assert args.question_type in ["coding", "mcq", "numeric"]
+assert args.mcq_block in ["checkbox", "multiple-choice"]
+assert args.mcq_partial_credict in ["false", "COV", "EDC", "PC"]
 assert args.language in ["r", "python"]
-
-print("loading template autotests.yml...")
-with open(args.config_path, "r") as f:
-    autotest_config_dict = yaml.safe_load(f)
-autograder_info = autotest_config_dict[args.language]["pl"]
 
 question_folder = "{}/questions/{}".format(args.pl_repo, args.question_folder)
 with open("{}/info.json".format(question_folder), "r") as f:
@@ -38,6 +37,11 @@ if args.question_type not in tag_list:
 question_info["tags"] = tag_list
 
 if args.question_type == "coding":
+    print("loading template autotests.yml...")
+    with open(args.config_path, "r") as f:
+        autotest_config_dict = yaml.safe_load(f)
+    autograder_info = autotest_config_dict[args.language]["pl"]
+
     # add external autograder
     question_info["gradingMethod"] = "External"
     question_info["externalGradingOptions"] = {
@@ -145,19 +149,38 @@ if args.question_type == "coding":
 elif args.question_type == "mcq":
     question_info.pop("gradingMethod", None)
 
-    # update question.html
-    # soup = BeautifulSoup(question_html)
-    # text_editor_blocks = soup.find_all("pl-rich-text-editor")
-    # for text_editor_block in text_editor_blocks:
-    #     text_editor_block.extract()
-    #
-    # check_box_string = ""
-    # check_box_string += '<pl-checkbox answers-name="select">\n'
-    # check_box_string += '<pl-answer correct="true">  Eagle </pl-answer>\n'
-    # check_box_string += '<pl-answer correct="false"> Tilapia </pl-answer>'
-    # check_box_string += '<pl-answer correct="true">  Crow </pl-answer>'
-    # check_box_string += '<pl-answer correct="false"> Crocodile </pl-answer>'
-    # check_box_string += "</pl-checkbox>"
+    # remove pl-rich-text-editor
+    soup = BeautifulSoup(question_html)
+    text_editor_blocks = soup.find_all("pl-rich-text-editor")
+    for text_editor_block in text_editor_blocks:
+        print("remove pl-rich-text-editor")
+        text_editor_block.extract()
+    question_html = str(soup)
+
+    checkbox_blocks = soup.find_all(f"pl-{args.mcq_block}")
+    if len(checkbox_blocks) == 0:
+        print(
+            f"pl-{args.mcq_block} tag not found. Add a template for pl-{args.mcq_block}."
+        )
+        if args.mcq_block == "multiple-choice" or args.mcq_partial_credict == "false":
+            question_html += f'\n<pl-{args.mcq_block} answers-name="answer">\n'
+        else:
+            question_html += f'\n<pl-checkbox answers-name="answer" partial-credit="true" partial-credit-method="{args.mcq_partial_credict}">\n'
+        question_html += '<pl-answer correct="true"> True statement </pl-answer>\n'
+        question_html += '<pl-answer correct="false"> False statement </pl-answer>'
+        question_html += f"</pl-{args.mcq_block}>"
+    else:
+        print(
+            f"update pl-{args.mcq_block} with partial-credit={args.mcq_partial_credict}"
+        )
+        for checkbox_block in checkbox_blocks:
+            if args.mcq_partial_credict == "false":
+                del checkbox_block["partial-credit"]
+                del checkbox_block["partial-credit-method"]
+            else:
+                checkbox_block["partial-credit"] = "true"
+                checkbox_block["partial-credit-method"] = args.mcq_partial_credict
+        question_html = str(soup)
 
 with open("{}/info.json".format(question_folder), "w") as f:
     json.dump(question_info, f, indent=2)
