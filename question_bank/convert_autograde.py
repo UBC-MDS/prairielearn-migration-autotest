@@ -20,7 +20,6 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--pl_repo")
 parser.add_argument("--question_folder")
 parser.add_argument("--question_type", default="coding")
-parser.add_argument("--use_server_files", default=True, type=str2bool)
 parser.add_argument("--initial_code_block", default="none")
 parser.add_argument("--create_data_file", default=False, type=str2bool)
 parser.add_argument("--create_server_file", default=False, type=str2bool)
@@ -62,12 +61,10 @@ if args.question_type == "coding":
         "entrypoint": autograder_info["entrypoint"],
         "timeout": 30,
     }
-    if args.use_server_files:
-        # if use_server_files, use our own autograder scripts
-        question_info["externalGradingOptions"]["serverFilesCourse"] = ["autograder/"]
-        question_info["externalGradingOptions"][
-            "entrypoint"
-        ] = "/grade/serverFilesCourse/autograder/run.sh"
+    if autograder_info["server_files"] != "":
+        question_info["externalGradingOptions"]["serverFilesCourse"] = [
+            autograder_info["server_files"]
+        ]
 
     # update question.html
     soup = BeautifulSoup(question_html, features="html.parser")

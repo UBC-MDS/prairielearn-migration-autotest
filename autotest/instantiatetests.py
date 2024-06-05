@@ -6,7 +6,10 @@ from autograde_utils import (
     extract_lines_before_delimiter,
 )
 import os
+import json
+import logging
 
+logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--pl_question_folder", default="pl-ubc-dsci523/questions")
@@ -25,13 +28,13 @@ def find_folders_with_file(base_dir, target_file="question.html"):
     return folders_with_file
 
 
-print("[INFO] loading template autotests.yml...")
+logging.info("loading template autotests.yml...")
 with open(args.config_path, "r") as f:
     autotest_config_dict = yaml.safe_load(f)
 
 all_question_folders = find_folders_with_file(args.pl_question_folder)
 if len(all_question_folders) == 0:
-    print("[INFO] No question under {}".format(args.pl_question_folder))
+    logging.info("No question under {}".format(args.pl_question_folder))
 
 for question_folder in all_question_folders:
     # find the coding question is R or python
@@ -48,11 +51,34 @@ for question_folder in all_question_folders:
     ):
         code_language = "python"
     else:
-        print("[INFO] {} does not have a solution file.".format(question_folder))
+        logging.info("{} does not have a solution file.".format(question_folder))
         continue
 
-    print("[INFO] {} is a {} coding question.".format(question_folder, code_language))
+    logging.info(
+        "############ {} is a {} coding question ############".format(
+            question_folder, code_language
+        )
+    )
     autotest_config = autotest_config_dict[code_language]
+
+    logging.info("update info.json to use the right autograder")
+    with open("{}/info.json".format(question_folder), "r") as f:
+        question_info = json.load(f)
+
+    question_info["gradingMethod"] = "External"
+    question_info["externalGradingOptions"] = {
+        "enabled": True,
+        "image": autotest_config["pl"]["image"],
+        "entrypoint": autotest_config["pl"]["entrypoint"],
+        "timeout": 30,
+    }
+    if autotest_config["pl"]["server_files"] != "":
+        question_info["externalGradingOptions"]["serverFilesCourse"] = [
+            autotest_config["pl"]["server_files"]
+        ]
+
+    with open("{}/info.json".format(question_folder), "w") as f:
+        json.dump(question_info, f, indent=2)
 
     # find test folder and solution
     tests_folder = "{}/tests".format(question_folder)
@@ -77,7 +103,7 @@ for question_folder in all_question_folders:
     if len(prefix_code_lines) > 0:
         prefix_code += r"\n".join(prefix_code_lines)
 
-    print("[INFO] found snippets to test:", snippets)
+    logging.info("found snippets to test: [{}]".format(",".join(snippets)))
 
     test_file = autotest_config["testfile_template"]
     test_count = 0
@@ -87,9 +113,7 @@ for question_folder in all_question_folders:
 
         if code_language == "r":
             # execute solution in R
-            print(
-                f"[INFO] executing {solution_path} to determine type...\n############"
-            )
+            logging.info(f"executing {solution_path} to determine type...\n")
             # TODO: run solution with postfix code
             current_wd = robjects.r("getwd()")[0]
             robjects.r("setwd('{}')".format(tests_folder))
@@ -98,7 +122,6 @@ for question_folder in all_question_folders:
                 autotest_config["dispatch"].replace("{{snippet}}", snippet)
             )
             robjects.r("setwd('{}')".format(current_wd))
-            print("############")
 
             if len(list(dispatch_result)) == 1:
                 dispatch_result = dispatch_result[0]
@@ -108,7 +131,7 @@ for question_folder in all_question_folders:
                 dispatch_result = "data.frame"
             elif dispatch_result not in autotest_config["test_expr_templates"].keys():
                 dispatch_result = "default"
-                print("unknown data type. use default test template.")
+                logging.info("unknown data type. use default test template.")
 
             # add source template
             source_template = Template(autotest_config["source_template"])
@@ -132,8 +155,8 @@ for question_folder in all_question_folders:
                 )
 
         else:
-            print(
-                f"[INFO] executing {solution_path} to determine type...\n############"
+            logging.info(
+                f"executing {solution_path} to determine type...\n############"
             )
             # run solution with postfix code
             solution_env = {}
@@ -150,7 +173,7 @@ for question_folder in all_question_folders:
 
             if dispatch_result not in autotest_config["test_expr_templates"].keys():
                 dispatch_result = "default"
-                print("unknown data type. use default test template.")
+                logging.info("unknown data type. use default test template.")
             test_templates = autotest_config["test_expr_templates"][dispatch_result]
             for template in test_templates:
                 test_expr_template = Template(template["test"])
@@ -173,6 +196,6 @@ for question_folder in all_question_folders:
                 test_count += 1
 
     if len(snippets) > 0:
-        print(f"[INFO] added test file to {test_path}")
+        logging.info(f"added test file to {test_path}")
         with open(test_path, "w") as f:
             f.write(test_file)

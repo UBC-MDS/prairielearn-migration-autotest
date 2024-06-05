@@ -1,3 +1,6 @@
+import logging
+
+
 class Template:
     def __init__(self, template):
         self.template = template
@@ -42,12 +45,17 @@ def find_autotest_variables(file_path, delimiter="# AUTOTEST "):
 
 
 def extract_lines_before_delimiter(file_path, delimiter="# SOLUTION"):
+    find_delimiter = False
     lines_before_solution = []
     with open(file_path, "r") as file:
         for line in file:
             # Check if the line contains the marker
             if line.strip() == delimiter:
+                find_delimiter = True
                 break
             # Append the line to the list of lines before the marker
             lines_before_solution.append(line.rstrip("\n"))
+    if find_delimiter is False:
+        logging.info(f"no {delimiter} lines found")
+        return []
     return lines_before_solution

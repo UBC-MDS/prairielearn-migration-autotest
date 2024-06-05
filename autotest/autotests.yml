@@ -2,6 +2,7 @@ python:
     pl:
         image: "prairielearn/grader-python"
         entrypoint: "/python_autograder/run.sh"
+        server_files: "autograder/"
         ace_mode: "ace/mode/python"
         submission_file_name: "user_code.py"
         source_file_name: "initial_code.py"
@@ -110,7 +111,8 @@ python:
 r:
     pl:
         image: "prairielearn/grader-r"
-        entrypoint: "r_autograder/run.sh"
+        entrypoint: "/grade/serverFilesCourse/autograder/run.sh" # "r_autograder/run.sh"
+        server_files: "autograder/" # ""
         ace_mode: "ace/mode/r"
         submission_file_name: "submission.R"
         source_file_name: "initial_code.R"
