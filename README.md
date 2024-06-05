@@ -160,8 +160,10 @@ At this stage, every question is labelled as *manually* graded in the `config.js
 > Replace the data in the `question.html` file with this
 >
 > ````
-><pl-dataframe params-name="df" show-index="false" show-dimensions="false" digits="4" display-language="r" show-python="false"></pl-dataframe>
+><pl-dataframe params-name="df" show-index="false" show-dimensions="false" digits="4" display-language="r" show-python="false" show-dtype="true"></pl-dataframe>
 >````
+
+- If the data contain `NA`, then you will need to add `keep_default_na=False` in `pd.read_csv()` to avoid getting errors. 
 
 Skip ahead to the section that is relevant for your question type
 
@@ -237,9 +239,11 @@ python question_bank/convert_autograde.py --pl_repo <pl_repo> --question_folder 
 1. Write the code in the solution file
 2. Make sure this file can be run
    - Import any libraries
-   - Make sure any supplemantary files exist (i.e. data files that are read)
+   - Make sure any supplementary files exist (i.e. data files that are read)
    - Store the solution in a variable 
-3. Use `# SOLUTION` to indicate the solution. All lines before this `# SOLUTION` tag will be added in students' submission files, so we can import libraries or read data before the tag. 
+3. Use `# SOLUTION` to indicate the solution. All lines before this `# SOLUTION` tag will be added in students' submission files, so we can import libraries or read data
+   - Make sure it is clear in the question text which packages are loaded, for example, `Assume the <code>tidyverse</code> library has already been loaded.`
+   - You can disable some of the function, for example, `max <- function(){NULL}`
 4. Append one of the following to the solution file to tell PrairieLearn what to autograde
    - `# AUTOTEST <variable_name>` or `# AUTOTEST <function_name(value)>`
 5. If needed, we can define additional variable by 
