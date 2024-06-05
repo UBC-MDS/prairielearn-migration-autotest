@@ -243,7 +243,7 @@ python question_bank/convert_autograde.py --pl_repo <pl_repo> --question_folder 
    - Store the solution in a variable 
 3. Use `# SOLUTION` to indicate the solution. All lines before this `# SOLUTION` tag will be added in students' submission files, so we can import libraries or read data
    - Make sure it is clear in the question text which packages are loaded, for example, `Assume the <code>tidyverse</code> library has already been loaded.`
-   - You can disable some of the function, for example, `max <- function(){NULL}`
+   - You can disable some functions, for example, `max <- function(){NULL}`
 4. Append one of the following to the solution file to tell PrairieLearn what to autograde
    - `# AUTOTEST <variable_name>` or `# AUTOTEST <function_name(value)>`
 5. If needed, we can define additional variable by 
