@@ -1,7 +1,7 @@
 python:
     pl:
         image: "prairielearn/grader-python"
-        entrypoint: "/python_autograder/run.sh"
+        entrypoint: "/grade/serverFilesCourse/autograder/run.sh" #  "/python_autograder/run.sh"
         server_files: "autograder/"
         ace_mode: "ace/mode/python"
         submission_file_name: "user_code.py"
@@ -11,7 +11,7 @@ python:
 
     testfile_template: "from code_feedback import Feedback\nfrom pl_helpers import name, points\nfrom utils import source_ans, source_student, MyTestCase\n\n\nclass Test(MyTestCase):\n"
     dispatch: "type({{snippet}})"
-    test_case_template: "    @points({{score}})\n    @name('test {{test_expr}}')\n    def test_{{count}}(self):\n        ans_env = source_ans({{source_params}})\n        student_env = source_student({{source_params}})\n        if Feedback.{{check_fn}}('{{test_expr}}', eval('{{test_expr}}', ans_env), eval('{{test_expr}}', student_env)):\n            Feedback.set_score({{score}})\n        else:\n            Feedback.set_score(0)\n\n"
+    test_case_template: "    @points({{score}})\n    @name('test {{test_expr}}')\n    def test_{{count}}(self):\n        ans_env = source_ans({{solution_params}})\n        student_env = source_student({{submission_params}})\n        if Feedback.{{check_fn}}('{{test_expr}}', eval('{{test_expr}}', ans_env), eval('{{test_expr}}', student_env)):\n            Feedback.set_score({{score}})\n        else:\n            Feedback.set_score(0)\n\n"
 
     test_expr_templates:
         default:

@@ -109,9 +109,9 @@ for question_folder in all_question_folders:
     test_count = 0
 
     for snippet in snippets:
-        import rpy2.robjects as robjects
-
         if code_language == "r":
+            import rpy2.robjects as robjects
+
             # execute solution in R
             logging.info(f"executing {solution_path} to determine type...\n")
             # TODO: run solution with postfix code
@@ -188,8 +188,9 @@ for question_folder in all_question_folders:
                         "count": test_count,
                         "check_fn": "check_{}".format(dispatch_result),
                         "test_expr": test_expr,
-                        "source_params": 'additional_code_string="{}"'.format(
-                            additional_code_string
+                        "solution_params": "postfix_code='{}'".format(postfix_code),
+                        "submission_params": "prefix_code='{}', postfix_code='{}'".format(
+                            prefix_code, postfix_code
                         ),
                     }
                 )
