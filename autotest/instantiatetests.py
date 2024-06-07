@@ -172,8 +172,10 @@ for question_folder in all_question_folders:
             print("############")
 
             if dispatch_result not in autotest_config["test_expr_templates"].keys():
-                dispatch_result = "default"
-                logging.info("unknown data type. use default test template.")
+                raise Exception(
+                    f"Unknown data type {dispatch_result}. Need to update the check function."
+                )
+
             test_templates = autotest_config["test_expr_templates"][dispatch_result]
             for template in test_templates:
                 test_expr_template = Template(template["test"])
@@ -184,9 +186,9 @@ for question_folder in all_question_folders:
                 test_case_template = Template(autotest_config["test_case_template"])
                 test_file += test_case_template.render(
                     {
-                        "score": 1,
+                        "score": template["point"],
                         "count": test_count,
-                        "check_fn": "check_{}".format(dispatch_result),
+                        "check_fn": template["check_fn"],
                         "test_expr": test_expr,
                         "solution_params": "postfix_code='{}'".format(postfix_code),
                         "submission_params": "prefix_code='{}', postfix_code='{}'".format(
