@@ -5,20 +5,31 @@ import os
 import yaml
 
 
+def str2bool(v):
+    if isinstance(v, bool):
+        return v
+    if v.lower() in ("true", "t"):
+        return True
+    elif v.lower() in ("false", "f"):
+        return False
+    else:
+        raise argparse.ArgumentTypeError("Boolean value expected.")
+
+
 parser = argparse.ArgumentParser()
 parser.add_argument("--pl_repo")
 parser.add_argument("--question_folder")
 parser.add_argument("--question_type", default="coding")
 parser.add_argument("--initial_code_block", default="none")
-parser.add_argument("--create_data_file", default=False)
-parser.add_argument("--create_server_file", default=False)
+parser.add_argument("--create_data_file", default=False, type=str2bool)
+parser.add_argument("--create_server_file", default=False, type=str2bool)
 parser.add_argument("--mcq_block", default="checkbox")
 parser.add_argument("--mcq_partial_credict", default="false")
 parser.add_argument("--language", default="python")
 parser.add_argument("--config_path", default="autotest/autotests.yml")
 args = parser.parse_args()
 assert args.question_type in ["coding", "mcq", "numeric"]
-assert args.mcq_block in ["checkbox", "multiple-choice"]
+assert args.mcq_block in ["none", "checkbox", "multiple-choice"]
 assert args.mcq_partial_credict in ["false", "COV", "EDC", "PC"]
 assert args.language in ["r", "python"]
 
@@ -50,9 +61,13 @@ if args.question_type == "coding":
         "entrypoint": autograder_info["entrypoint"],
         "timeout": 30,
     }
+    if autograder_info["server_files"] != "":
+        question_info["externalGradingOptions"]["serverFilesCourse"] = [
+            autograder_info["server_files"]
+        ]
 
     # update question.html
-    soup = BeautifulSoup(question_html)
+    soup = BeautifulSoup(question_html, features="html.parser")
 
     # extract code text to initial code
     code_text = ""
@@ -134,6 +149,7 @@ if args.question_type == "coding":
         # create an empty data.txt. Note we need to add data manually
         data_file_name = "{}/data.txt".format(test_folder)
         if os.path.exists(data_file_name) is False:
+            print(f"create {data_file_name}")
             with open(data_file_name, "w") as f:
                 f.write("")
 
@@ -141,6 +157,7 @@ if args.question_type == "coding":
             # create a server file to read data.txt
             server_file_name = "{}/server.py".format(question_folder)
             if os.path.exists(server_file_name) is False:
+                print(f"create {server_file_name}")
                 with open(server_file_name, "w") as f:
                     f.write(
                         'import prairielearn as pl\nimport pandas as pd\n\n\ndef generate(data):\n    df = pd.read_csv("tests/data.txt")\n    data["params"]["df"] = pl.to_json(df.head(10))\n'
@@ -157,35 +174,40 @@ elif args.question_type == "mcq":
         text_editor_block.extract()
     question_html = str(soup)
 
-    checkbox_blocks = soup.find_all(f"pl-{args.mcq_block}")
-    if len(checkbox_blocks) == 0:
-        print(
-            f"pl-{args.mcq_block} tag not found. Add a template for pl-{args.mcq_block}."
-        )
-        if args.mcq_block == "multiple-choice" or args.mcq_partial_credict == "false":
-            question_html += f'\n<pl-{args.mcq_block} answers-name="answer">\n'
-        else:
-            question_html += f'\n<pl-checkbox answers-name="answer" partial-credit="true" partial-credit-method="{args.mcq_partial_credict}">\n'
-        question_html += '<pl-answer correct="true"> True statement </pl-answer>\n'
-        question_html += '<pl-answer correct="false"> False statement </pl-answer>'
-        question_html += f"</pl-{args.mcq_block}>"
-    else:
-        print(
-            f"update pl-{args.mcq_block} with partial-credit={args.mcq_partial_credict}"
-        )
-        for checkbox_block in checkbox_blocks:
-            if args.mcq_partial_credict == "false":
-                del checkbox_block["partial-credit"]
-                del checkbox_block["partial-credit-method"]
+    if args.mcq_block != "none":
+        checkbox_blocks = soup.find_all(f"pl-{args.mcq_block}")
+        if len(checkbox_blocks) == 0:
+            print(
+                f"pl-{args.mcq_block} tag not found. Add a template for pl-{args.mcq_block}."
+            )
+            if (
+                args.mcq_block == "multiple-choice"
+                or args.mcq_partial_credict == "false"
+            ):
+                question_html += f'\n<pl-{args.mcq_block} answers-name="answer">\n'
             else:
-                checkbox_block["partial-credit"] = "true"
-                checkbox_block["partial-credit-method"] = args.mcq_partial_credict
-        question_html = str(soup)
+                question_html += f'\n<pl-checkbox answers-name="answer" partial-credit="true" partial-credit-method="{args.mcq_partial_credict}">\n'
+            question_html += '<pl-answer correct="true"> True statement </pl-answer>\n'
+            question_html += '<pl-answer correct="false"> False statement </pl-answer>'
+            question_html += f"</pl-{args.mcq_block}>"
+        else:
+            print(
+                f"update pl-{args.mcq_block} with partial-credit={args.mcq_partial_credict}"
+            )
+            for checkbox_block in checkbox_blocks:
+                if args.mcq_partial_credict == "false":
+                    del checkbox_block["partial-credit"]
+                    del checkbox_block["partial-credit-method"]
+                else:
+                    checkbox_block["partial-credit"] = "true"
+                    checkbox_block["partial-credit-method"] = args.mcq_partial_credict
+            question_html = str(soup)
 
 with open("{}/info.json".format(question_folder), "w") as f:
     json.dump(question_info, f, indent=2)
 
+# run BeautifulSoup again to make the question_html string an HTML file
+soup = BeautifulSoup(question_html, features="html.parser")
+question_html = str(soup)
 with open("{}/question.html".format(question_folder), "w") as f:
     f.write(question_html)
-
-print("Done")
