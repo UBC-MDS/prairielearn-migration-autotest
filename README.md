@@ -160,8 +160,10 @@ At this stage, every question is labelled as *manually* graded in the `config.js
 > Replace the data in the `question.html` file with this
 >
 > ````
-><pl-dataframe params-name="df" show-index="false" show-dimensions="false" digits="4" display-language="r" show-python="false"></pl-dataframe>
+><pl-dataframe params-name="df" show-index="false" show-dimensions="false" digits="4" display-language="r" show-python="false" show-dtype="true"></pl-dataframe>
 >````
+
+- If the data contain `NA`, then you will need to add `keep_default_na=False` in `pd.read_csv()` to avoid getting errors. 
 
 Skip ahead to the section that is relevant for your question type
 
@@ -214,29 +216,52 @@ python question_bank/convert_autograde.py --pl_repo <pl_repo> --question_folder 
 python question_bank/convert_autograde.py --pl_repo <pl_repo> --question_folder <question_folder> --question_type <coding or mcq> --initial_code_block <> --language <python or r>
 ```
 
-- Now you must go through a series of steps to prepare the solution for autograding
+- Now you must go through a series of steps to prepare the solution for autograding. Follow steps in 4.1
    - It is hoped in the future that some of these steps will be moved to the above script
+
+##### Numeric
+> We do not cover this yet
+
+##### Manual
+> Manual questions should already be in the correct format
+
+## 4. Generating test files
+
+> Run this once for each course
+>
+>>Multiple choice questions should already be complete at this stage
+>
+>> This may be extended later to more than just coding questions
+
+### 4.1 Writing solutions
+> This assumes all questions are in the format as described in the [documentation](https://prairielearn.readthedocs.io/en/latest/question/)
 
 1. Write the code in the solution file
 2. Make sure this file can be run
    - Import any libraries
-   - Make sure any supplemantary files exist (i.e. data files that are read)
-   - Store the solution in a variable
-3. Append one of the following to the solution file to tell PrairieLearn what to autograde
-   - `# AUTOTEST <variable_name>`
-   - `# AUTOTEST <function_name(value)>`
-4. Make sure the initial code block can run if it has the correct solution
-   - Anything we are not asking them should be in the file (i.e. libraries)
+   - Make sure any supplementary files exist (i.e. data files that are read)
+   - Store the solution in a variable 
+3. Use `# SOLUTION` to indicate the solution. All lines before this `# SOLUTION` tag will be added in students' submission files, so we can import libraries or read data
+   - Make sure it is clear in the question text which packages are loaded, for example, `Assume the <code>tidyverse</code> library has already been loaded.`
+   - You can disable some functions, for example, `max <- function(){NULL}`
+4. Append one of the following to the solution file to tell PrairieLearn what to autograde
+   - `# AUTOTEST <variable_name>` or `# AUTOTEST <function_name(value)>`
+5. If needed, we can define additional variable by 
+   - `# TESTSETUP <additional_variables>`
 
 ###### Example
-
->Add a line starting with `# AUTOTEST ` to indicate the variable to test. For example, 
+> Add `# SOLUTION` to indicate the solution. Add a line starting with `# AUTOTEST ` to indicate the variable to test. For example,  
 >```r
->grades_data <- read_csv("grades.csv", skip = 2)
-># AUTOTEST grades_data
+> library(tidyverse)
+> 
+> # SOLUTION
+> grades_data <- read_csv("grades.csv", skip = 2)
+> # AUTOTEST grades_data
 >```
+
 >For coding questions with test cases, use `# TESTSETUP` to add the test cases. For example, 
 >```
+> # SOLUTION
 >def unravel(x):
 >    if not isinstance(x, list):
 >        return [x]
@@ -250,27 +275,8 @@ python question_bank/convert_autograde.py --pl_repo <pl_repo> --question_folder 
 ># AUTOTEST unravel(x1);unravel(x2)
 >```
 
-##### Numeric
-> We do not cover this yet
+#### 4.2. Automatic Creation
 
-##### Manual
-> Manual questions should already be in the correct format
-
-
-
-## 4. Generating test files
-
-> Run this once for each course
->
->>Multiple choice questions should already be complete at this stage
->
->> This may be extended later to more than just coding questions
-
-### 4.1. Coding Questions
-
-> This assumes all questions are in the format as described in the [documentation](https://prairielearn.readthedocs.io/en/latest/question/)
-
-#### 4.1.1. Automatic Creation
 - Run  the script to generate test files automatically
   - The script would find all folders with `question.html` under `pl_question_folder`, so `pl_question_folder` can be at any level (for example, the entire course, one lecture, or just one question)
   - `config_path` is the path to the file [autotests.yml](https://github.com/VincentLiu3/prairielearn-migrationa-autotest/blob/main/autotest/autotests.yml) 
@@ -278,4 +284,4 @@ python question_bank/convert_autograde.py --pl_repo <pl_repo> --question_folder 
 python autotest/instantiatetests.py --pl_question_folder <pl_question_folder> --config_path <config_path>
 ```
 
-- Push the changes to PrairieLearn
+- Review and push the changes to PrairieLearn

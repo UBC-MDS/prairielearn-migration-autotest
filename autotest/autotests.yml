@@ -1,125 +1,65 @@
 python:
     pl:
         image: "prairielearn/grader-python"
-        entrypoint: "/python_autograder/run.sh"
+        entrypoint: "/grade/serverFilesCourse/autograder/run.sh" #  "/python_autograder/run.sh"
+        server_files: "autograder/"
         ace_mode: "ace/mode/python"
         submission_file_name: "user_code.py"
         source_file_name: "initial_code.py"
         solution_file_name: "ans.py"
         test_file_name: "test.py"
 
-    setup: "from code_feedback import Feedback\nfrom pl_helpers import name, points\nfrom utils import source_ans, source_student, MyTestCase\n\n\nclass Test(MyTestCase):\n"
+    testfile_template: "from code_feedback import Feedback\nfrom pl_helpers import name, points\nfrom utils import source_ans, source_student, MyTestCase\n\n\nclass Test(MyTestCase):\n"
     dispatch: "type({{snippet}})"
-    test_case_template: "    @points({{score}})\n    @name('test {{test_expr}}')\n    def test_{{count}}(self):\n        ans_env = source_ans({{source_params}})\n        student_env = source_student({{source_params}})\n        if Feedback.{{check_fn}}('{{test_expr}}', eval('{{test_expr}}', ans_env), eval('{{test_expr}}', student_env)):\n            Feedback.set_score({{score}})\n        else:\n            Feedback.set_score(0)\n\n"
+    test_case_template: "    @points({{score}})\n    @name('test {{test_expr}}')\n    def test_{{count}}(self):\n        ans_env = source_ans({{solution_params}})\n        student_env = source_student({{submission_params}})\n        if Feedback.{{check_fn}}('{{test_expr}}', eval('{{test_expr}}', ans_env), eval('{{test_expr}}', student_env)):\n            Feedback.set_score({{score}})\n        else:\n            Feedback.set_score(0)\n\n"
 
     test_expr_templates:
-        default:
-            - test: "{{snippet}}"
-              fail: "value of {{snippet}} is not correct"
-
-        int:
-            - test: "type({{snippet}})"
-              fail: "type of {{snippet}} is not int. Please make sure it is int and not np.int64, etc. You can cast your value into an int using int()"
-
-            - test: "{{snippet}}"
-              fail: "value of {{snippet}} is not correct"
-
-        float:
-            - test: "type({{snippet}})"
-              fail: "type of {{snippet}} is not float. Please make sure it is float and not np.float64, etc. You can cast your value into a float using float()"
-
-            - test: "round({{snippet}}, 2)"
-              fail: "value of {{snippet}} is not correct (rounded to 2 decimal places)"
-
-        set:
-            - test: "type({{snippet}})"
-              fail: "type of {{snippet}} is not set. {{snippet}} should be a set"
-
-            - test: "len({{snippet}})"
-              fail: "length of {{snippet}} is not correct"
-
-            - test: "{{snippet}}"
-              fail: "value of {{snippet}} is not correct"
+        scalar:
+          - test: "{{snippet}}"
+            check_fn: 'check_scalar'
+            fail: "value of {{snippet}} is not correct"
+            point: 1.0
 
         list:
-            - test: "{{snippet}}"
-              fail: "order of elements of {{snippet}} is not correct"
+          - test: "{{snippet}}"
+            check_fn: 'check_list'
+            fail: "value of {{snippet}} is not correct"
+            point: 1.0
 
         tuple:
-            - test: "type({{snippet}})"
-              fail: "type of {{snippet}} is not tuple. {{snippet}} should be a tuple"
+          - test: "{{snippet}}"
+            check_fn: 'check_tuple'
+            fail: "value of {{snippet}} is not correct"
+            point: 1.0
 
-            - test: "len({{snippet}})"
-              fail: "length of {{snippet}} is not correct"
+        DataFrame:
+          - test: "{{snippet}}"
+            check_fn: 'check_dataframe'
+            fail: "value of {{snippet}} is not correct"
+            point: 1.0
 
-            - test: "sorted(map(str, {{snippet}}))"
-              fail: "values of {{snippet}} are not correct"
+        ndarray:
+          - test: "{{snippet}}"
+            check_fn: 'check_numpy_array_allclose'
+            fail: "value of {{snippet}} is not correct"
+            point: 1.0
 
-            - test: "{{snippet}}"
-              fail: "order of elements of {{snippet}} is not correct"
-
-        str:
-
-            - test: "type({{snippet}})"
-              fail: "type of {{snippet}} is not str. {{snippet}} should be an str"
-
-            - test: "len({{snippet}})"
-              fail: "length of {{snippet}} is not correct"
-
-            - test: "{{snippet}}.lower()"
-              fail: "value of {{snippet}} is not correct"
-
-            - test: "{{snippet}}"
-              fail: "correct string value of {{snippet}} but incorrect case of letters"
-
-        dict:
-
-            - test: "type({{snippet}})"
-              fail: "type of {{snippet}} is not dict. {{snippet}} should be a dict"
-
-            - test: "len(list({{snippet}}.keys()))"
-              fail: "number of keys of {{snippet}} is not correct"
-
-            - test: "sorted(map(str, {{snippet}}.keys()))"
-              fail: "keys of {{snippet}} are not correct"
-
-            - test: "sorted(map(str, {{snippet}}.values()))"
-              fail: "correct keys, but values of {{snippet}} are not correct"
-
-            - test: "{{snippet}}"
-              fail: "correct keys and values, but incorrect correspondence in keys and values of {{snippet}}"
-
-        bool:
-            - test: "type({{snippet}})"
-              fail: "type of {{snippet}} is not bool. {{snippet}} should be a bool"
-
-            - test: "{{snippet}}"
-              fail: "boolean value of {{snippet}} is not correct"
-
-        type:
-            - test: "{{snippet}}"
-              fail: "type of {{snippet}} is not correct"
-
-        pandas.core.frame.DataFrame:
-            - test: "type({{snippet}})"
-              fail: "type of {{snippet}} is not pandas.core.frame.DataFrame. {{snippet}} should be a DataFrame"
-
-            - test: "{{snippet}}.reindex(sorted({{snippet}}.columns), axis=1)"
-              fail: "some or all elements of {{snippet}} are not correct"
 
 r:
     pl:
         image: "prairielearn/grader-r"
-        entrypoint: "r_autograder/run.sh"
+        entrypoint: "/grade/serverFilesCourse/autograder/run.sh" # "r_autograder/run.sh"
+        server_files: "autograder/" # ""
         ace_mode: "ace/mode/r"
         submission_file_name: "submission.R"
         source_file_name: "initial_code.R"
         solution_file_name: "solution.R"
         test_file_name: "test.R"
 
-    setup: "library(tinytest)\n\nstudent <- new.env()\nsource('/grade/student/submission.R', student)\n\nsolution <- new.env()\nsource('solution.R', solution)\n\n"
-    dispatch: "class({{snippet}})"
+    testfile_template: "library(tinytest)\nsource('/grade/run/utils.R')\n\n"
+    source_template: "solution <- source_solution({{solution_params}})\nstudent <- source_submission({{submission_params}})\n\n"
     test_case_template: "## @title test {{test_expr}}\n## @score {{score}}\nexpect_equal(eval(parse(text = '{{test_expr}}'), envir = solution), eval(parse(text = '{{test_expr}}'), envir = student))\n\n"
+    dispatch: "class({{snippet}})"
 
     test_expr_templates:
         default:
@@ -149,41 +89,39 @@ r:
               fail: "value of {{snippet}} is not correct"
               point: 0.5
 
-        integer:
-            - test: "class({{snippet}})"
-              fail: "type of {{snippet}} is not integer"
-
-            - test: "length({{snippet}})"
-              fail: "length of {{snippet}} is not correct"
-
-            - test: "sort({{snippet}})"
-              fail: "values of {{snippet}} are not correct"
-
         numeric:
             - test: "class({{snippet}})"
               fail: "type of {{snippet}} is not double"
+              point: 0.25
 
             - test: "round({{snippet}}, 2)"
               fail: "value of {{snippet}} is not correct (rounded to 2 decimal places)"
+              point: 0.25
 
             - test: "length({{snippet}})"
               fail: "length of {{snippet}} is not correct"
+              point: 0.25
 
             - test: "sort({{snippet}})"
               fail: "values of {{snippet}} are not correct"
+              point: 0.25
 
         list:
             - test: "class({{snippet}})"
               fail: "type of {{snippet}} is not list"
+              point: 0.25
 
             - test: "length({{snippet}})"
               fail: "length of {{snippet}} is not correct"
+              point: 0.25
 
             - test: "sort(c(names({{snippet}})))"
               fail: "values of {{snippet}} names are not correct"
+              point: 0.25
 
             - test: "{{snippet}}"
               fail: "order of elements of {{snippet}} is not correct"
+              point: 0.25
 
         character:
             - test: "class({{snippet}})"
@@ -205,6 +143,8 @@ r:
         logical:
             - test: "class({{snippet}})"
               fail: "type of {{snippet}} is not logical"
+              point: 0.5
 
             - test: "{{snippet}}"
               fail: "logical value of {{snippet}} is not correct"
+              point: 0.5
