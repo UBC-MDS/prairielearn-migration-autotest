@@ -122,6 +122,13 @@ for question_folder in all_question_folders:
                 autotest_config["dispatch"].replace("{{snippet}}", snippet)
             )
             robjects.r("setwd('{}')".format(current_wd))
+            current_wd = robjects.r("getwd()")[0]
+            robjects.r("setwd('{}')".format(tests_folder))
+            robjects.r["source"]("solution.R")
+            dispatch_result = robjects.r(
+                autotest_config["dispatch"].replace("{{snippet}}", snippet)
+            )
+            robjects.r("setwd('{}')".format(current_wd))
 
             if len(list(dispatch_result)) == 1:
                 dispatch_result = dispatch_result[0]
@@ -163,7 +170,10 @@ for question_folder in all_question_folders:
             with open(solution_path, "r", encoding="utf-8") as f:
                 code_string = f.read()
             code_string += postfix_code
+            current_wd = os.getcwd()
+            os.chdir(tests_folder)
             exec(code_string, solution_env)
+            os.chdir(current_wd)
             dispatch_template = Template(autotest_config["dispatch"])
             dispatch_result = eval(
                 dispatch_template.render({"snippet": snippet}), solution_env
