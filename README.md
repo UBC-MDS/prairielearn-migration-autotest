@@ -237,6 +237,7 @@ python question_bank/convert_autograde.py --pl_repo <pl_repo> --question_folder 
 > This assumes all questions are in the format as described in the [documentation](https://prairielearn.readthedocs.io/en/latest/question/)
 
 1. Write the code in the solution file
+   - If you need to use quotation marks, use the double quotation mark ("<string>") in the solution file. 
 2. Make sure this file can be run
    - Import any libraries
    - Make sure any supplementary files exist (i.e. data files that are read)

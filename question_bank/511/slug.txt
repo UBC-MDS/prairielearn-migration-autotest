@@ -1,0 +1,80 @@
+Lecture 1: Python basics
+lec_python-basics/obj_data-types: Create, describe and differentiate standard Python data types such as `int`, `float`, `string`, `list`, `dict`, `tuple`, etc.
+lec_python-basics/obj_arithmetic: Perform arithmetic operations like `+`, `-`, `*`, `**` on numeric values
+lec_python-basics/obj_string-ops: Perform basic string operations like `.lower()`, `.split()` to manipulate strings
+lec_python-basics/obj_boolean-ops: Compute boolean values using comparison operators operations (`==`, `!=`, `>`, etc.) and boolean operators (`and`, `or`, `not`)
+lec_python-basics/obj_assign-index-slice-subset: Assign, index, slice and subset values to and from tuples, lists, strings and dictionaries
+lec_python-basics/obj_conditional-statement: Write a conditional statement with `if`, `elif` and `else`
+lec_python-basics/obj_indentation: Identify code blocks by levels of indentation
+lec_python-basics/obj_mutable: Explain the difference between mutable objects like a list and immutable objects like a tuple
+
+Lecture 2: Loops & functions
+lec_loops-functions/obj_write-loops: Write for and while loops in Python
+lec_loops-functions/obj_iterable: Identify iterable data types which can be used in for loops
+lec_loops-functions/obj_comprehension: Create a list, dictionary, or set using comprehension
+lec_loops-functions/obj_try-except: Write a try/except statement
+lec_loops-functions/obj_define-functions: Define a function and an anonymous function in Python
+lec_loops-functions/obj_positional-keyword-args: Describe the difference between positional and keyword arguments
+lec_loops-functions/obj_local-global-args: Describe the difference between local and global arguments
+lec_loops-functions/obj_dry-principle: Apply the DRY principle to write modular code
+lec_loops-functions/obj_side-effects: Assess whether a function has side effects
+lec_loops-functions/obj_docstrings: Write a docstring for a function that describes parameters, return values, behaviour and usage
+
+Lecture 3: Classes, debugging & testing
+lec_classes-debugging-testing/obj_class-function-diff: Describe the difference between a class and a function in Python
+lec_classes-debugging-testing/obj_create-class: Be able to create a class
+lec_classes-debugging-testing/obj_instance-attributes: Differentiate between instance attributes and class attributes
+lec_classes-debugging-testing/obj_methods: Differentiate between methods, class methods and static methods
+lec_classes-debugging-testing/obj_inheritance: Understand and implement subclassing/inheritance with Python classes
+lec_classes-debugging-testing/obj_test-cases: Formulate a test case to prove a function design specification
+lec_classes-debugging-testing/obj_assert: Use an assert statement to validate a test case
+
+Lecture 4: Style guides, scripts, and imports
+lec_style-imports/obj_code-style: Describe why code style is important
+lec_style-imports/obj_linter-autoformatter: Differentiate between the role of a linter like flake8 and an autoformatter like black
+lec_style-imports/obj_linting-formatting: Implement linting and formatting from the command line or within Jupyter or another IDE
+lec_style-imports/obj_write-module: Write a Python module (.py file) in VS Code or other IDE of your choice
+lec_style-imports/obj_import-packages: Import installed or custom packages using the import syntax
+lec_style-imports/obj_reference: Explain the notion of a reference in Python
+lec_style-imports/obj_scoping: Explain the notion of scoping in Python
+lec_style-imports/obj_variable-change: Anticipate whether changing one variable will change another in Python
+lec_style-imports/obj_function-change-arg: Anticipate whether a function changes the caller’s version of an argument variable in Python
+lec_style-imports/obj_equality: Select the appropriate choice between == and is in Python
+
+Lecture 5: Introduction to NumPy
+lec_numpy/obj_create-arrays: Use NumPy to create arrays with built-in functions including np.array(), np.arange(), np.linspace() and np.full(), np.zeros(), np.ones()
+lec_numpy/obj_array-indexing: Be able to access values from a NumPy array by numeric indexing and slicing and boolean indexing
+lec_numpy/obj_math-operations: Perform mathematical operations on and with arrays.
+lec_numpy/obj_broadcasting: Explain what broadcasting is and how to use it.
+lec_numpy/obj_reshape: Reshape arrays by adding/removing/reshaping axes with .reshape(), np.newaxis(), .ravel(), .flatten()
+lec_numpy/obj_builtin-functions: Understand how to use built-in NumPy functions like np.sum(), np.mean(), np.log() as stand-alone functions or as methods of numpy arrays (when available)
+
+Lecture 6: Introduction to Pandas
+lec_pandas/obj_create-series-df: Create Pandas series with pd.Series() and Pandas dataframe with pd.DataFrame()
+lec_pandas/obj_df-indexing: Be able to access values from a Series/DataFrame by indexing, slicing and boolean indexing using notation such as df[], df.loc[], df.iloc[], df.query[]
+lec_pandas/obj_df-arithmetic: Perform basic arithmetic operations between two series and anticipate the result.
+lec_pandas/obj_dtype-assignment: Describe how Pandas assigns dtypes to Series and what the object dtype is
+lec_pandas/obj_read-csv: Read a standard .csv file from a local path or url using Pandas pd.read_csv().
+lec_pandas/obj_np-pd-relations: Explain the relationship and differences between np.ndarray, pd.Series and pd.DataFrame objects in Python.
+
+Lecture 7: Basic data wrangling with Pandas
+lec_pandas-wrangling/obj_df-inspect: Inspect a dataframe with df.head(), df.tail(), df.info(), df.describe().
+lec_pandas-wrangling/obj_df-summary: Obtain dataframe summaries with df.info() and df.describe().
+lec_pandas-wrangling/obj_modify-display: Manipulate how a dataframe displays in Jupyter by modifying Pandas configuration options such as pd.set_option("display.max_rows", n).
+lec_pandas-wrangling/obj_rename-cols: Rename columns of a dataframe using the df.rename() function or by accessing the df.columns attribute.
+lec_pandas-wrangling/obj_modify-index: Modify the index name and index values of a dataframe using .set_index(), .reset_index(), df.index.name, .index.
+lec_pandas-wrangling/obj_reshape-df: Use df.melt() and df.pivot() to reshape dataframes, specifically to make tidy dataframes.
+lec_pandas-wrangling/obj_combine-df: Combine dataframes using df.merge() and pd.concat() and know when to use these different methods.
+lec_pandas-wrangling/obj_apply: Apply functions to a dataframe df.apply() and df.applymap()
+lec_pandas-wrangling/obj_grouping-aggregating: Perform grouping and aggregating operations using df.groupby() and df.agg().
+lec_pandas-wrangling/obj_aggregate-methods: Perform aggregating methods on grouped or ungrouped objects such as finding the minimum, maximum and sum of values in a dataframe using df.agg().
+lec_pandas-wrangling/obj_manage-missing-values: Remove or fill missing values in a dataframe with df.dropna() and df.fillna().
+
+Lecture 8: Advanced data wrangling with Pandas
+lec_pandas-wrangling-advanced/obj_string-manipulation: Manipulate strings in Pandas by accessing methods from the Series.str attribute.
+lec_pandas-wrangling-advanced/obj_regexp: Understand how to use regular expressions in Pandas for wrangling strings.
+lec_pandas-wrangling-advanced/obj_understand-datetime: Differentiate between datetime objects in Pandas such as Timestamp, Timedelta, Period, DateOffset.
+lec_pandas-wrangling-advanced/obj_create-datetime: Create these datetime objects with functions like pd.Timestamp(), pd.Period(), pd.date_range(), pd.period_range().
+lec_pandas-wrangling-advanced/obj_partial-string-indexing: Index a datetime index with partial string indexing.
+lec_pandas-wrangling-advanced/obj_datetime-operations: Perform basic datetime operations like splitting a datetime into constituent parts (e.g., year, weekday, second, etc), apply offsets, change timezones, and resample with .resample().
+lec_pandas-wrangling-advanced/obj_basic-plots: Make basic plots in Pandas by accessing the .plot attribute or importing functions from pandas.plotting.
