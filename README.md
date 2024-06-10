@@ -249,7 +249,7 @@ python question_bank/convert_autograde.py --pl_repo <pl_repo> --question_folder 
    - `# AUTOTEST <variable_name>` or `# AUTOTEST <function_name(value)>`
 5. If needed, we can define additional variable by the line 
    - `# TESTSETUP <additional_variables>`
-5. If needed, we can handle error by adding the line 
+6. If needed, we can handle error by adding the line 
    - `# EXPECT-ERROR <call_a_function>`
 
 ###### Example
@@ -295,6 +295,12 @@ python question_bank/convert_autograde.py --pl_repo <pl_repo> --question_folder 
 > # AUTOTEST sort_by_size(sentences)
 > # EXPECT-ERROR sort_by_size(1)
 >```
+
+> If you want to test a data frame call `result` but it is okay to have different column order, use 
+>```r
+> # AUTOTEST result[,order(names(result))] 
+>```
+
 
 #### 4.2. Automatic Creation
 
