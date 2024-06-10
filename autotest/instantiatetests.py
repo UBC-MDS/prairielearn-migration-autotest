@@ -125,17 +125,11 @@ for question_folder in all_question_folders:
 
             # execute solution in R
             logging.info(f"executing {solution_path} to determine type...\n")
-            # TODO: run solution with postfix code
             current_wd = robjects.r("getwd()")[0]
             robjects.r("setwd('{}')".format(tests_folder))
             robjects.r["source"]("solution.R")
-            dispatch_result = robjects.r(
-                autotest_config["dispatch"].replace("{{snippet}}", snippet)
-            )
-            robjects.r("setwd('{}')".format(current_wd))
-            current_wd = robjects.r("getwd()")[0]
-            robjects.r("setwd('{}')".format(tests_folder))
-            robjects.r["source"]("solution.R")
+            # run solution with postfix code
+            robjects.r["eval"](robjects.r["parse"](text=postfix_code))
             dispatch_result = robjects.r(
                 autotest_config["dispatch"].replace("{{snippet}}", snippet)
             )
@@ -179,10 +173,11 @@ for question_folder in all_question_folders:
             logging.info(
                 f"executing {solution_path} to determine type...\n############"
             )
-            # run solution with postfix code
+            # execute solution in python
             solution_env = {}
             with open(solution_path, "r", encoding="utf-8") as f:
                 code_string = f.read()
+            # run solution with postfix code
             code_string += postfix_code
             current_wd = os.getcwd()
             os.chdir(tests_folder)
@@ -229,6 +224,7 @@ for question_folder in all_question_folders:
                     {"score": 1 / total_snippets, "snippet": snippet}
                 )
             else:
+                # TODO: error handling test for python
                 raise NotImplementedError
 
     if total_snippets > 0:
