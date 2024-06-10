@@ -247,8 +247,10 @@ python question_bank/convert_autograde.py --pl_repo <pl_repo> --question_folder 
    - You can disable some functions, for example, `max <- function(){NULL}`
 4. Append one of the following to the solution file to tell PrairieLearn what to autograde
    - `# AUTOTEST <variable_name>` or `# AUTOTEST <function_name(value)>`
-5. If needed, we can define additional variable by 
+5. If needed, we can define additional variable by the line 
    - `# TESTSETUP <additional_variables>`
+5. If needed, we can handle error by adding the line 
+   - `# EXPECT-ERROR <call_a_function>`
 
 ###### Example
 > Add `# SOLUTION` to indicate the solution. Add a line starting with `# AUTOTEST ` to indicate the variable to test. For example,  
@@ -276,6 +278,23 @@ python question_bank/convert_autograde.py --pl_repo <pl_repo> --question_folder 
 ># AUTOTEST unravel(x1);unravel(x2)
 >```
 
+>```
+# SOLUTION
+> sort_by_size <- function(sentences) { 
+>    if (!is.character(sentences)) {
+>        stop("Input must be a character vector.")
+>    }
+>
+>    sorted_sentences <- tibble(sentences = sentences, n = nchar(sentences)) %>%
+>        arrange(n) %>%
+>        pull(sentences)
+>
+>    return(sorted_sentences)
+>}
+# AUTOTEST sort_by_size(sentences)
+# EXPECT-ERROR sort_by_size(1)
+>```
+>
 #### 4.2. Automatic Creation
 
 - Run  the script to generate test files automatically

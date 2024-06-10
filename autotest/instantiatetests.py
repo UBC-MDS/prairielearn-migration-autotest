@@ -89,6 +89,7 @@ for question_folder in all_question_folders:
 
     prefix_code = r""
     postfix_code = r""
+    error_code = r""
 
     prefix_code_lines = extract_lines_before_delimiter(
         solution_path, delimiter="# SOLUTION"
@@ -97,6 +98,9 @@ for question_folder in all_question_folders:
         solution_path, delimiter="# TESTSETUP "
     )
     snippets = find_autotest_variables(solution_path, delimiter="# AUTOTEST ")
+    error_handling_snippets = find_autotest_variables(
+        solution_path, delimiter="# EXPECT-ERROR "
+    )
 
     if len(postfix_code_lines) > 0:
         postfix_code += r"\n".join(postfix_code_lines)
@@ -104,6 +108,13 @@ for question_folder in all_question_folders:
         prefix_code += r"\n".join(prefix_code_lines)
 
     logging.info("found snippets to test: [{}]".format(",".join(snippets)))
+    if len(error_handling_snippets) > 0:
+        logging.info(
+            "found error_handling_snippets to test: [{}]".format(
+                ",".join(error_handling_snippets)
+            )
+        )
+    total_snippets = len(snippets) + len(error_handling_snippets)
 
     test_file = autotest_config["testfile_template"]
     test_count = 0
@@ -158,7 +169,10 @@ for question_folder in all_question_folders:
 
                 test_case_template = Template(autotest_config["test_case_template"])
                 test_file += test_case_template.render(
-                    {"score": template["point"], "test_expr": test_expr}
+                    {
+                        "score": template["point"] / total_snippets,
+                        "test_expr": test_expr,
+                    }
                 )
 
         else:
@@ -208,7 +222,16 @@ for question_folder in all_question_folders:
                 )
                 test_count += 1
 
-    if len(snippets) > 0:
+        for snippet in error_handling_snippets:
+            if code_language == "r":
+                error_case_template = Template(autotest_config["error_case_template"])
+                test_file += error_case_template.render(
+                    {"score": 1 / total_snippets, "snippet": snippet}
+                )
+            else:
+                raise NotImplementedError
+
+    if total_snippets > 0:
         logging.info(f"added test file to {test_path}")
         with open(test_path, "w") as f:
             f.write(test_file)
