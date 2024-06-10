@@ -278,8 +278,9 @@ python question_bank/convert_autograde.py --pl_repo <pl_repo> --question_folder 
 ># AUTOTEST unravel(x1);unravel(x2)
 >```
 
+>For coding questions with error handling, use `# EXPECT-ERROR`. For example,
 >```
-# SOLUTION
+> # SOLUTION
 > sort_by_size <- function(sentences) { 
 >    if (!is.character(sentences)) {
 >        stop("Input must be a character vector.")
@@ -290,11 +291,11 @@ python question_bank/convert_autograde.py --pl_repo <pl_repo> --question_folder 
 >        pull(sentences)
 >
 >    return(sorted_sentences)
->}
-# AUTOTEST sort_by_size(sentences)
-# EXPECT-ERROR sort_by_size(1)
+> }
+> # AUTOTEST sort_by_size(sentences)
+> # EXPECT-ERROR sort_by_size(1)
 >```
->
+
 #### 4.2. Automatic Creation
 
 - Run  the script to generate test files automatically
