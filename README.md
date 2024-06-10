@@ -296,9 +296,10 @@ python question_bank/convert_autograde.py --pl_repo <pl_repo> --question_folder 
 > # EXPECT-ERROR sort_by_size(1)
 >```
 
-> If you want to test a data frame call `result` but it is okay to have different column order, use 
+> If you want to test a data frame call `result` but it is okay to have different order for columns:  
 >```r
-> # AUTOTEST result[,order(names(result))] 
+> # TESTSETUP result <- result[,order(names(result))]
+> # AUTOTEST result
 >```
 
 
