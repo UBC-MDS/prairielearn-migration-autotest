@@ -1,11 +1,6 @@
 import argparse
 import yaml
-from autograde_utils import (
-    Template,
-    find_autotest_variables,
-    extract_lines_before_delimiter,
-    extract_lines_after_delimiter,
-)
+from autograde_utils import Template, find_autotest_variables
 import os
 import json
 import logging
@@ -88,10 +83,6 @@ for question_folder in all_question_folders:
     )
     test_path = "{}/{}".format(tests_folder, autotest_config["pl"]["test_file_name"])
 
-    # prefix_code = r""
-    # postfix_code = r""
-    # error_code = r""
-
     snippets, error_handling_snippets, prefix_code, postfix_code = (
         find_autotest_variables(
             solution_path,
@@ -101,17 +92,6 @@ for question_folder in all_question_folders:
             postfix_delimiter="# TESTSETUP",
         )
     )
-    # postfix_code_lines = extract_lines_after_delimiter(
-    #     solution_path, delimiter="# TESTSETUP "
-    # )
-    # snippets = find_autotest_variables(solution_path, delimiter="# AUTOTEST ")
-    # error_handling_snippets = find_autotest_variables(
-    #     solution_path, delimiter="# EXPECT-ERROR "
-    # )
-    # if len(postfix_code_lines) > 0:
-    #     postfix_code += r"\n".join(postfix_code_lines)
-    # if len(prefix_code_lines) > 0:
-    #     prefix_code += r"\n".join(prefix_code_lines)
 
     logging.info("found snippets to test: [{}]".format(",".join(snippets)))
     if len(error_handling_snippets) > 0:
@@ -181,8 +161,6 @@ for question_folder in all_question_folders:
             solution_env = {}
             with open(solution_path, "r", encoding="utf-8") as f:
                 code_string = f.read()
-            # run solution with postfix code
-            # code_string += postfix_code
             current_wd = os.getcwd()
             os.chdir(tests_folder)
             exec(code_string, solution_env)
