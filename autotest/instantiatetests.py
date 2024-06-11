@@ -170,7 +170,7 @@ for question_folder in all_question_folders:
                 dispatch_template.render({"snippet": snippet}), solution_env
             )
             dispatch_result = dispatch_result.__name__
-            print("############")
+            logging.info("############")
 
             if dispatch_result not in autotest_config["test_expr_templates"].keys():
                 raise Exception(
@@ -187,11 +187,11 @@ for question_folder in all_question_folders:
                 test_case_template = Template(autotest_config["test_case_template"])
                 test_file += test_case_template.render(
                     {
-                        "score": template["point"],
+                        "score": template["point"] / total_snippets,
                         "count": test_count,
                         "check_fn": template["check_fn"],
                         "test_expr": test_expr,
-                        "solution_params": "postfix_code='{}'".format(postfix_code),
+                        "solution_params": "",
                         "submission_params": "prefix_code='{}', postfix_code='{}'".format(
                             prefix_code, postfix_code
                         ),
