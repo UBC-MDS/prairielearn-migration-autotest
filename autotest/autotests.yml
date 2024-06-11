@@ -59,6 +59,8 @@ r:
     testfile_template: "library(tinytest)\nsource('/grade/run/utils.R')\n\n"
     source_template: "solution <- source_solution({{solution_params}})\nstudent <- source_submission({{submission_params}})\n\n"
     test_case_template: "## @title test {{test_expr}}\n## @score {{score}}\nexpect_equal(eval(parse(text = '{{test_expr}}'), envir = solution), eval(parse(text = '{{test_expr}}'), envir = student))\n\n"
+    error_case_template: "## @title expect_error({{snippet}})\n## @score {{score}}\nexpect_error(student${{snippet}})\n\n"
+
     dispatch: "class({{snippet}})"
 
     test_expr_templates:

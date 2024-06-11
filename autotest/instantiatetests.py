@@ -1,10 +1,6 @@
 import argparse
 import yaml
-from autograde_utils import (
-    Template,
-    find_autotest_variables,
-    extract_lines_before_delimiter,
-)
+from autograde_utils import Template, find_autotest_variables
 import os
 import json
 import logging
@@ -87,23 +83,24 @@ for question_folder in all_question_folders:
     )
     test_path = "{}/{}".format(tests_folder, autotest_config["pl"]["test_file_name"])
 
-    prefix_code = r""
-    postfix_code = r""
-
-    prefix_code_lines = extract_lines_before_delimiter(
-        solution_path, delimiter="# SOLUTION"
+    snippets, error_handling_snippets, prefix_code, postfix_code = (
+        find_autotest_variables(
+            solution_path,
+            test_delimiter="# AUTOTEST ",
+            error_delimiter="# EXPECT-ERROR ",
+            prefix_delimiter="# SOLUTION",
+            postfix_delimiter="# TESTSETUP",
+        )
     )
-    postfix_code_lines = find_autotest_variables(
-        solution_path, delimiter="# TESTSETUP "
-    )
-    snippets = find_autotest_variables(solution_path, delimiter="# AUTOTEST ")
-
-    if len(postfix_code_lines) > 0:
-        postfix_code += r"\n".join(postfix_code_lines)
-    if len(prefix_code_lines) > 0:
-        prefix_code += r"\n".join(prefix_code_lines)
 
     logging.info("found snippets to test: [{}]".format(",".join(snippets)))
+    if len(error_handling_snippets) > 0:
+        logging.info(
+            "found error_handling_snippets to test: [{}]".format(
+                ",".join(error_handling_snippets)
+            )
+        )
+    total_snippets = len(snippets) + len(error_handling_snippets)
 
     test_file = autotest_config["testfile_template"]
     test_count = 0
@@ -114,14 +111,6 @@ for question_folder in all_question_folders:
 
             # execute solution in R
             logging.info(f"executing {solution_path} to determine type...\n")
-            # TODO: run solution with postfix code
-            current_wd = robjects.r("getwd()")[0]
-            robjects.r("setwd('{}')".format(tests_folder))
-            robjects.r["source"]("solution.R")
-            dispatch_result = robjects.r(
-                autotest_config["dispatch"].replace("{{snippet}}", snippet)
-            )
-            robjects.r("setwd('{}')".format(current_wd))
             current_wd = robjects.r("getwd()")[0]
             robjects.r("setwd('{}')".format(tests_folder))
             robjects.r["source"]("solution.R")
@@ -144,7 +133,7 @@ for question_folder in all_question_folders:
             source_template = Template(autotest_config["source_template"])
             test_file += source_template.render(
                 {
-                    "solution_params": "postfix_code='{}'".format(postfix_code),
+                    "solution_params": "",
                     "submission_params": "prefix_code='{}', postfix_code='{}'".format(
                         prefix_code, postfix_code
                     ),
@@ -158,18 +147,20 @@ for question_folder in all_question_folders:
 
                 test_case_template = Template(autotest_config["test_case_template"])
                 test_file += test_case_template.render(
-                    {"score": template["point"], "test_expr": test_expr}
+                    {
+                        "score": template["point"] / total_snippets,
+                        "test_expr": test_expr,
+                    }
                 )
 
         else:
             logging.info(
                 f"executing {solution_path} to determine type...\n############"
             )
-            # run solution with postfix code
+            # execute solution in python
             solution_env = {}
             with open(solution_path, "r", encoding="utf-8") as f:
                 code_string = f.read()
-            code_string += postfix_code
             current_wd = os.getcwd()
             os.chdir(tests_folder)
             exec(code_string, solution_env)
@@ -179,7 +170,7 @@ for question_folder in all_question_folders:
                 dispatch_template.render({"snippet": snippet}), solution_env
             )
             dispatch_result = dispatch_result.__name__
-            print("############")
+            logging.info("############")
 
             if dispatch_result not in autotest_config["test_expr_templates"].keys():
                 raise Exception(
@@ -196,11 +187,11 @@ for question_folder in all_question_folders:
                 test_case_template = Template(autotest_config["test_case_template"])
                 test_file += test_case_template.render(
                     {
-                        "score": template["point"],
+                        "score": template["point"] / total_snippets,
                         "count": test_count,
                         "check_fn": template["check_fn"],
                         "test_expr": test_expr,
-                        "solution_params": "postfix_code='{}'".format(postfix_code),
+                        "solution_params": "",
                         "submission_params": "prefix_code='{}', postfix_code='{}'".format(
                             prefix_code, postfix_code
                         ),
@@ -208,7 +199,17 @@ for question_folder in all_question_folders:
                 )
                 test_count += 1
 
-    if len(snippets) > 0:
+        for snippet in error_handling_snippets:
+            if code_language == "r":
+                error_case_template = Template(autotest_config["error_case_template"])
+                test_file += error_case_template.render(
+                    {"score": 1 / total_snippets, "snippet": snippet}
+                )
+            else:
+                # TODO: error handling test for python
+                raise NotImplementedError
+
+    if total_snippets > 0:
         logging.info(f"added test file to {test_path}")
         with open(test_path, "w") as f:
             f.write(test_file)
