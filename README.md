@@ -243,27 +243,24 @@ python question_bank/convert_autograde.py --pl_repo <pl_repo> --question_folder 
    - Make sure any supplementary files exist (i.e. data files that are read)
    - Store the solution in a variable 
 3. Use `# SOLUTION` to indicate the solution. All lines before this `# SOLUTION` tag will be added in students' submission files, so we can import libraries or read data
-   - Make sure it is clear in the question text which packages are loaded, for example, `Assume the <code>tidyverse</code> library has already been loaded.`
+   - Make sure it is clear in the question text which packages are loaded, for example, `The <code>tidyverse</code> library has already been loaded.`
    - You can disable some functions, for example, `max <- function(){NULL}`
-4. Append one of the following to the solution file to tell PrairieLearn what to autograde
+4. If needed, use `# TESTSETUP` to define additional variables or modify variables. All lines (except `AUTOTEST` and `EXPECT-ERROR`) after this `# TESTSETUP` tag will be added in students' submission files as well.
+5. Append one of the following to the solution file to tell PrairieLearn what to autograde
    - `# AUTOTEST <variable_name>` or `# AUTOTEST <function_name(value)>`
-5. If needed, we can define additional variable by the line 
-   - `# TESTSETUP <additional_variables>`
-6. If needed, we can handle error by adding the line 
-   - `# EXPECT-ERROR <call_a_function>`
+   - `# EXPECT-ERROR <function_name(value)>`
 
 ###### Example
 > Add `# SOLUTION` to indicate the solution. Add a line starting with `# AUTOTEST ` to indicate the variable to test. For example,  
 >```r
 > library(tidyverse)
-> 
 > # SOLUTION
 > grades_data <- read_csv("grades.csv", skip = 2)
 > # AUTOTEST grades_data
 >```
 
 >For coding questions with test cases, use `# TESTSETUP` to add the test cases. For example, 
->```
+>```r
 > # SOLUTION
 >def unravel(x):
 >    if not isinstance(x, list):
@@ -274,7 +271,9 @@ python question_bank/convert_autograde.py --pl_repo <pl_repo> --question_folder 
 >        output += unravel(x_i)
 >    return output
 >
-># TESTSETUP x1 = [1, [2, 3], 4, [5, [6, 7], 8], 9];x2 = [1, 2, 3, [4, 5]]
+># TESTSETUP 
+>x1 = [1, [2, 3], 4, [5, [6, 7], 8], 9]
+>x2 = [1, 2, 3, [4, 5]]
 ># AUTOTEST unravel(x1);unravel(x2)
 >```
 
@@ -296,9 +295,10 @@ python question_bank/convert_autograde.py --pl_repo <pl_repo> --question_folder 
 > # EXPECT-ERROR sort_by_size(1)
 >```
 
-> If you want to test a data frame call `result` but it is okay to have different order for columns:  
+> If you want to test a data frame and it is okay to have a different column order:  
 >```r
-> # TESTSETUP result <- result[,order(names(result))]
+> # TESTSETUP 
+> result <- result[,order(names(result))]
 > # AUTOTEST result
 >```
 
