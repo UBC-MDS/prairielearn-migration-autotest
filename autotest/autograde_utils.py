@@ -22,40 +22,140 @@ class Template:
         return re.findall(r"{{\s*[\w]+\s*}}", self.template)
 
 
-def find_autotest_variables(file_path, delimiter="# AUTOTEST "):
+def remove_empty_from_list(input_list):
+    if "" in input_list:
+        input_list.remove("")
+
+    if " " in input_list:
+        input_list.remove(" ")
+
+    return input_list
+
+
+def find_autotest_variables(
+    file_path,
+    test_delimiter="# AUTOTEST ",
+    error_delimiter="# EXPECT-ERROR ",
+    prefix_delimiter="# SOLUTION",
+    postfix_delimiter="# TESTSETUP",
+):
     test_variables = []
+    error_variables = []
+    lines_before_prefix_delimiter = []
+    lines_after_postfix_delimiter = []
+
+    find_prefix_delimiter = False
+    find_postfix_delimiter = False
 
     with open(file_path, "r") as file:
         lines = file.readlines()
 
-        # Iterate through each line
         for line in lines:
-            # Check if the delimiter is present in the line
-            if delimiter in line:
-                test_variable_string = line.strip().replace(delimiter, "")
-                test_variables.extend(test_variable_string.split(";"))
+            if prefix_delimiter in line:
+                assert (
+                    find_postfix_delimiter is False
+                ), "prefix should be found before postfix"
+                find_prefix_delimiter = True
+                assert line.strip() == prefix_delimiter
+                continue
 
-    if "" in test_variables:
-        test_variables.remove("")
+            if postfix_delimiter in line:
+                find_postfix_delimiter = True
+                assert line.strip() == postfix_delimiter
+                continue
 
-    if " " in test_variables:
-        test_variables.remove(" ")
+            if test_delimiter in line:
+                test_variables.extend(
+                    line.strip().replace(test_delimiter, "").split(";")
+                )
 
-    return test_variables
+            elif error_delimiter in line:
+                error_variables.extend(
+                    line.strip().replace(error_delimiter, "").split(";")
+                )
+
+            else:
+                # Append the line to the list of lines before the marker
+                if find_prefix_delimiter is False:
+                    lines_before_prefix_delimiter.append(line.rstrip("\n"))
+
+                if find_postfix_delimiter is True:
+                    lines_after_postfix_delimiter.append(line.rstrip("\n"))
+
+    test_variables = remove_empty_from_list(test_variables)
+    error_variables = remove_empty_from_list(error_variables)
+    lines_before_prefix_delimiter = remove_empty_from_list(
+        lines_before_prefix_delimiter
+    )
+    lines_after_postfix_delimiter = remove_empty_from_list(
+        lines_after_postfix_delimiter
+    )
+
+    if find_prefix_delimiter is False:
+        logging.info(f"no prefix delimiter ({find_prefix_delimiter}) found")
+        lines_before_prefix_delimiter = []
+
+    prefix_code = r""
+    postfix_code = r""
+    prefix_code += r"\n".join(lines_before_prefix_delimiter)
+    postfix_code += r"\n".join(lines_after_postfix_delimiter)
+
+    return (
+        test_variables,
+        error_variables,
+        prefix_code,
+        postfix_code,
+    )
 
 
 def extract_lines_before_delimiter(file_path, delimiter="# SOLUTION"):
     find_delimiter = False
-    lines_before_solution = []
+    lines_before_delimiter = []
     with open(file_path, "r") as file:
         for line in file:
             # Check if the line contains the marker
-            if line.strip() == delimiter:
+            if delimiter in line:
                 find_delimiter = True
                 break
             # Append the line to the list of lines before the marker
-            lines_before_solution.append(line.rstrip("\n"))
+            lines_before_delimiter.append(line.rstrip("\n"))
+
+    if "" in lines_before_delimiter:
+        lines_before_delimiter.remove("")
+
+    if " " in lines_before_delimiter:
+        lines_before_delimiter.remove(" ")
+
     if find_delimiter is False:
         logging.info(f"no {delimiter} lines found")
         return []
-    return lines_before_solution
+    return lines_before_delimiter
+
+
+def extract_lines_after_delimiter(file_path, delimiter="# TESTSETUP"):
+    find_delimiter = False
+    lines_after_delimiter = []
+    with open(file_path, "r") as file:
+        for line in file:
+            # Check if the line contains the marker
+            if delimiter in line:
+                find_delimiter = True
+                lines_after_delimiter.extend(
+                    line.strip().replace(delimiter, "").split(";")
+                )
+                continue
+
+            if find_delimiter:
+                # Append the line to the list of lines before the marker
+                lines_after_delimiter.append(line.rstrip("\n"))
+
+    if "" in lines_after_delimiter:
+        lines_after_delimiter.remove("")
+
+    if " " in lines_after_delimiter:
+        lines_after_delimiter.remove(" ")
+
+    if find_delimiter is False:
+        logging.info(f"no {delimiter} lines found")
+        return []
+    return lines_after_delimiter
