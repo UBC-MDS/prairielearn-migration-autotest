@@ -23,12 +23,12 @@ parser.add_argument("--question_type", default="coding")
 parser.add_argument("--initial_code_block", default="none")
 parser.add_argument("--create_data_file", default=False, type=str2bool)
 parser.add_argument("--create_server_file", default=False, type=str2bool)
-parser.add_argument("--mcq_block", default="checkbox")
+parser.add_argument("--mcq_block", default="none")
 parser.add_argument("--mcq_partial_credict", default="false")
 parser.add_argument("--language", default="python")
 parser.add_argument("--config_path", default="autotest/autotests.yml")
 args = parser.parse_args()
-assert args.question_type in ["coding", "mcq", "numeric"]
+assert args.question_type in ["coding", "mcq", "numeric", "matching", "order-blocks"]
 assert args.mcq_block in ["none", "checkbox", "multiple-choice"]
 assert args.mcq_partial_credict in ["false", "COV", "EDC", "PC"]
 assert args.language in ["r", "python"]
@@ -175,10 +175,11 @@ elif args.question_type == "mcq":
     question_html = str(soup)
 
     if args.mcq_block != "none":
-        checkbox_blocks = soup.find_all(f"pl-{args.mcq_block}")
-        if len(checkbox_blocks) == 0:
+        checkbox_blocks = soup.find_all("pl-checkbox")
+        mc_blocks = soup.find_all("pl-multiple-choice")
+        if len(checkbox_blocks) == 0 and len(mc_blocks) == 0:
             print(
-                f"pl-{args.mcq_block} tag not found. Add a template for pl-{args.mcq_block}."
+                f"No pl-checkbox and pl-multiple-choice. Add a template for pl-{args.mcq_block}."
             )
             if (
                 args.mcq_block == "multiple-choice"
@@ -191,22 +192,32 @@ elif args.question_type == "mcq":
             question_html += '<pl-answer correct="false"> False statement </pl-answer>'
             question_html += f"</pl-{args.mcq_block}>"
         else:
-            print(
-                f"update pl-{args.mcq_block} with partial-credit={args.mcq_partial_credict}"
-            )
-            for checkbox_block in checkbox_blocks:
-                if args.mcq_partial_credict == "false":
-                    del checkbox_block["partial-credit"]
-                    del checkbox_block["partial-credit-method"]
-                else:
-                    checkbox_block["partial-credit"] = "true"
-                    checkbox_block["partial-credit-method"] = args.mcq_partial_credict
-            question_html = str(soup)
+            if len(checkbox_blocks) > 0:
+                print(
+                    f"update pl-{args.mcq_block} with partial-credit={args.mcq_partial_credict}"
+                )
+                for checkbox_block in checkbox_blocks:
+                    if args.mcq_partial_credict == "false":
+                        del checkbox_block["partial-credit"]
+                        del checkbox_block["partial-credit-method"]
+                    else:
+                        checkbox_block["partial-credit"] = "true"
+                        checkbox_block["partial-credit-method"] = args.mcq_partial_credict
+                question_html = str(soup)
+            if len(mc_blocks) > 0:
+                for checkbox_block in mc_blocks:
+                    if args.mcq_partial_credict == "false":
+                        del checkbox_block["partial-credit"]
+                        del checkbox_block["partial-credit-method"]
+                    else:
+                        checkbox_block["partial-credit"] = "true"
+                        checkbox_block["partial-credit-method"] = args.mcq_partial_credict
+                question_html = str(soup)
 
 with open("{}/info.json".format(question_folder), "w") as f:
     json.dump(question_info, f, indent=2)
 
-# run BeautifulSoup again to make the question_html string an HTML file
+# run BeautifulSoup again to convert the question_html string to an HTML file
 soup = BeautifulSoup(question_html, features="html.parser")
 question_html = str(soup)
 with open("{}/question.html".format(question_folder), "w") as f:
