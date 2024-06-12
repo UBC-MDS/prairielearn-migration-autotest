@@ -202,7 +202,9 @@ elif args.question_type == "mcq":
                         del checkbox_block["partial-credit-method"]
                     else:
                         checkbox_block["partial-credit"] = "true"
-                        checkbox_block["partial-credit-method"] = args.mcq_partial_credict
+                        checkbox_block["partial-credit-method"] = (
+                            args.mcq_partial_credict
+                        )
                 question_html = str(soup)
             if len(mc_blocks) > 0:
                 for checkbox_block in mc_blocks:
@@ -211,7 +213,9 @@ elif args.question_type == "mcq":
                         del checkbox_block["partial-credit-method"]
                     else:
                         checkbox_block["partial-credit"] = "true"
-                        checkbox_block["partial-credit-method"] = args.mcq_partial_credict
+                        checkbox_block["partial-credit-method"] = (
+                            args.mcq_partial_credict
+                        )
                 question_html = str(soup)
 
 with open("{}/info.json".format(question_folder), "w") as f:
