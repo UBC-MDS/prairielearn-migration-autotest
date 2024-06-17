@@ -189,7 +189,7 @@ elif args.question_type == "mcq":
             else:
                 question_html += f'\n<pl-checkbox answers-name="answer" partial-credit="true" partial-credit-method="{args.mcq_partial_credict}">\n'
             question_html += '<pl-answer correct="true"> True statement </pl-answer>\n'
-            question_html += '<pl-answer correct="false"> False statement </pl-answer>'
+            question_html += '<pl-answer correct="false"> False statement </pl-answer>\n'
             question_html += f"</pl-{args.mcq_block}>"
         else:
             if len(checkbox_blocks) > 0:
@@ -205,7 +205,6 @@ elif args.question_type == "mcq":
                         checkbox_block["partial-credit-method"] = (
                             args.mcq_partial_credict
                         )
-                question_html = str(soup)
             if len(mc_blocks) > 0:
                 for checkbox_block in mc_blocks:
                     if args.mcq_partial_credict == "false":
@@ -216,7 +215,7 @@ elif args.question_type == "mcq":
                         checkbox_block["partial-credit-method"] = (
                             args.mcq_partial_credict
                         )
-                question_html = str(soup)
+            question_html = str(soup)
 
 with open("{}/info.json".format(question_folder), "w") as f:
     json.dump(question_info, f, indent=2)
