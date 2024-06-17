@@ -11,7 +11,7 @@ python:
 
     testfile_template: "from code_feedback import Feedback\nfrom pl_helpers import name, points\nfrom utils import source_ans, source_student, MyTestCase\n\n\nclass Test(MyTestCase):\n"
     dispatch: "type({{snippet}})"
-    test_case_template: "    @points({{score}})\n    @name('test {{test_expr}}')\n    def test_{{count}}(self):\n        ans_env = source_ans({{solution_params}})\n        student_env = source_student({{submission_params}})\n        if Feedback.{{check_fn}}('{{test_expr}}', eval('{{test_expr}}', ans_env), eval('{{test_expr}}', student_env)):\n            Feedback.set_score({{score}})\n        else:\n            Feedback.set_score(0)\n\n"
+    test_case_template: "    @points({{score}})\n    @name('test {{test_expr}}')\n    def test_{{count}}(self):\n        ans_env = source_ans({{solution_params}})\n        student_env = source_student({{submission_params}})\n        if Feedback.{{check_fn}}('{{test_expr}}', eval('{{test_expr}}', ans_env), eval('{{test_expr}}', student_env)):\n            Feedback.set_score(1)\n        else:\n            Feedback.set_score(0)\n\n"
 
     test_expr_templates:
         scalar:
