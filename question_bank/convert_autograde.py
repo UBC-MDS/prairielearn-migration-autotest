@@ -189,7 +189,9 @@ elif args.question_type == "mcq":
             else:
                 question_html += f'\n<pl-checkbox answers-name="answer" partial-credit="true" partial-credit-method="{args.mcq_partial_credict}">\n'
             question_html += '<pl-answer correct="true"> True statement </pl-answer>\n'
-            question_html += '<pl-answer correct="false"> False statement </pl-answer>\n'
+            question_html += (
+                '<pl-answer correct="false"> False statement </pl-answer>\n'
+            )
             question_html += f"</pl-{args.mcq_block}>"
         else:
             if len(checkbox_blocks) > 0:
