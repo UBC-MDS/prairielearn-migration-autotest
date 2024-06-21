@@ -1,0 +1,50 @@
+Lecture 1: Time complexity, Big O, space complexity
+lec_time-complexity/obj_determine-complexity: Given code, determine the time and space complexity using Big-O notation.
+lec_time-complexity/obj_classify-complexity: Classify an algorithm into one of the common complexity classes (e.g. constant, logarithmic, linear, quadratic, etc.).
+lec_time-complexity/obj_contrast-complexity: Contrast time and space complexity.
+lec_time-complexity/obj_measure-time: Measure the amount of time code in Python takes using timeit or the time library.
+lec_time-complexity/obj_good-algorithms: Maintain an awareness that choosing a good algorithm matters, sometimes a lot!
+
+Lecture 2: Searching, sorting, hash tables
+lec_searching-sorting-hashing/obj_sorting: Describe some basic sorting algorithms and their time complexities.
+lec_searching-sorting-hashing/obj_binary-search: Describe the binary search algorithm.
+lec_searching-sorting-hashing/obj_sorted-vs-unsorted: Explain why searching in a sorted list is faster than in an unsorted list.
+lec_searching-sorting-hashing/obj_hash-tables: Explain the pros and cons of hash tables, and how they work at a high level.
+lec_searching-sorting-hashing/obj_apply-dict: Apply python's dict and defaultdict data structures.
+
+Lecture 3: Recursive algorithms
+lec_recursive-algo/obj_recursion-explanation: Explain what recursion is, and why both the base case(s) and recursive step(s) are essential. Recognize problems for which a recursive solution is appropriate.
+lec_recursive-algo/obj_write-recursive: Write a recursive solution for a simple problem.
+lec_recursive-algo/obj_recursion-vs-iteration: Compare and contrast recursion and iteration.
+
+Lecture 4: Recursive data structures
+lec_recursive-structure/obj_linked-list: Implement a simple recursive data structure such as a linked list.
+lec_recursive-structure/obj_bst-vs-hash: Compare and contrast a binary search tree to a hash table.
+lec_recursive-structure/obj_nearest-neighbours: Select an appropriate algorithm for finding nearest neighbours.
+
+Lecture 5: Graphs, graph searches
+lec_graphs-search/obj_map-problems-graphs: Map real-world problems to various kinds of graphs (directed/undirected, weighted/unweighted).
+lec_graphs-search/obj_bfs-dfs: Perform breadth-first and depth-first searches in graphs.
+lec_graphs-search/obj_compare-bfs-dfs: Compare/contrast BFS and DFS.
+lec_graphs-search/obj_stack-queue: Use Stack and Queue data structures in implementing DFS and BFS.
+lec_graphs-search/obj_graph-run-times: Find the running times of graph algorithms as a function of the number of vertices and edges in a graph.
+
+Lecture 6: Sparse matrices
+lec_sparse-matrix/obj_pagerank: Describe the PageRank algorithm.
+lec_sparse-matrix/obj_convert-matrices: Convert between adjacency matrices and their corresponding graphs.
+lec_sparse-matrix/obj_scipy-matrix: Manipulate scipy sparse matrix objects in Python.
+lec_sparse-matrix/obj_space-complexity: Analyze the space complexity of sparse and dense matrix representations.
+lec_sparse-matrix/obj_row-vs-column: Appropriately use row-wise vs. column-wise sparse matrices.
+
+Lecture 7: Discrete optimization
+lec_discrete-opt/obj_discrete-vs-continuous: Contrast discrete vs. continuous optimization.
+lec_discrete-opt/obj_objective-constraints: Contrast an objective function vs. constraints.
+lec_discrete-opt/obj_english-to-pulp: Convert between English descriptions of objective/constraint functions and PuLP code.
+lec_discrete-opt/obj_solve-ilp: Solve an integer linear program using the PuLP library.
+
+Lecture 8: Dynamic programming, code vectorization
+lec_dynamic-prog-vectorization/obj_caching-memoization: Identify cases of repeated/redundant computation and address them with caching/memoization.
+lec_dynamic-prog-vectorization/obj_dynamic-prog: Describe, at a high level, the basic idea behind dynamic programming.
+lec_dynamic-prog-vectorization/obj_identify-dp: Identify problems when dynamic programming is applicable.
+lec_dynamic-prog-vectorization/obj_vectorization: Identify situations where vectorization is possible.
+lec_dynamic-prog-vectorization/obj_convert-vectorized: Convert un-vectorized code to vectorized code.
