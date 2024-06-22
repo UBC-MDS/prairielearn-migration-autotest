@@ -239,3 +239,18 @@ soup = BeautifulSoup(question_html, features="html.parser")
 question_html = str(soup)
 with open("{}/question.html".format(question_folder), "w") as f:
     f.write(question_html)
+
+# check if question_type exists in infoCourse.json
+course_json = "{}/infoCourse.json".format(args.pl_repo)
+if os.path.exists(course_json):
+    with open(course_json, "r") as f:
+        course_info = json.load(f)
+    current_question_types = [tag['name'] for tag in course_info['tags']]
+    if args.question_type not in current_question_types:
+        print(
+            f"question_type '{args.question_type}' is not in '{course_json}' - you may need to create it manually"
+        )
+else:
+    print(
+        f"Could not find '{course_json}' - if this is where it belongs, please make sure to create it"
+    )
