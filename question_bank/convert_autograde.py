@@ -39,6 +39,44 @@ with open("{}/info.json".format(question_folder), "r") as f:
 with open("{}/question.html".format(question_folder), "r") as f:
     question_html = f.read()
 
+# Situations that require a test folder to be created
+test_conditions = [
+    args.question_type == "coding", 
+    args.create_data_file == True
+]
+
+# Create test folder if required
+if any(test_conditions):
+    # creat a test folder
+    test_folder = "{}/tests".format(question_folder)
+    if os.path.exists(test_folder) is False:
+        os.mkdir(test_folder)
+    else:
+        # remove existing ans.R
+        if os.path.exists("{}/ans.R".format(test_folder)):
+            print("remove {}/ans.R".format(test_folder))
+            os.remove("{}/ans.R".format(test_folder))
+
+# Check for server_file
+if args.create_server_file:
+    # create a server file to read data.txt
+    server_file_name = "{}/server.py".format(question_folder)
+    if os.path.exists(server_file_name) is False:
+        print(f"create {server_file_name}")
+        with open(server_file_name, "w") as f:
+            f.write(
+                'import prairielearn as pl\nimport pandas as pd\n\n\ndef generate(data):\n    df = pd.read_csv("tests/data.txt")\n    data["params"]["df"] = pl.to_json(df.head(10))\n'
+            )
+
+    # Check for data_file
+    if args.create_data_file:
+        # create an empty data.txt. Note we need to add data manually
+        data_file_name = "{}/data.txt".format(test_folder)
+        if os.path.exists(data_file_name) is False:
+            print(f"create {data_file_name}")
+            with open(data_file_name, "w") as f:
+                f.write("")
+
 # update tags in info.json
 tag_list = question_info["tags"]
 if "manual" in tag_list:
@@ -46,6 +84,10 @@ if "manual" in tag_list:
 if args.question_type not in tag_list:
     tag_list.append(args.question_type)
 question_info["tags"] = tag_list
+
+# Remove manual grader unless needed
+if args.question_type != "manual":
+    question_info.pop("gradingMethod", None)
 
 if args.question_type == "coding":
     print("loading template autotests.yml...")
@@ -125,16 +167,6 @@ if args.question_type == "coding":
     else:
         print(f"{source_file_name} already exists")
 
-    # creat a test folder
-    test_folder = "{}/tests".format(question_folder)
-    if os.path.exists(test_folder) is False:
-        os.mkdir(test_folder)
-    else:
-        # remove existing ans.R
-        if os.path.exists("{}/ans.R".format(test_folder)):
-            print("remove {}/ans.R".format(test_folder))
-            os.remove("{}/ans.R".format(test_folder))
-
     # creat a solution file in the test folder
     solution_file_name = "{}/{}".format(
         test_folder, autograder_info["solution_file_name"]
@@ -145,27 +177,7 @@ if args.question_type == "coding":
     else:
         print(f"{solution_file_name} already exists")
 
-    if args.create_data_file:
-        # create an empty data.txt. Note we need to add data manually
-        data_file_name = "{}/data.txt".format(test_folder)
-        if os.path.exists(data_file_name) is False:
-            print(f"create {data_file_name}")
-            with open(data_file_name, "w") as f:
-                f.write("")
-
-        if args.create_server_file:
-            # create a server file to read data.txt
-            server_file_name = "{}/server.py".format(question_folder)
-            if os.path.exists(server_file_name) is False:
-                print(f"create {server_file_name}")
-                with open(server_file_name, "w") as f:
-                    f.write(
-                        'import prairielearn as pl\nimport pandas as pd\n\n\ndef generate(data):\n    df = pd.read_csv("tests/data.txt")\n    data["params"]["df"] = pl.to_json(df.head(10))\n'
-                    )
-
 elif args.question_type == "mcq":
-    question_info.pop("gradingMethod", None)
-
     # remove pl-rich-text-editor
     soup = BeautifulSoup(question_html)
     text_editor_blocks = soup.find_all("pl-rich-text-editor")
