@@ -40,10 +40,7 @@ with open("{}/question.html".format(question_folder), "r") as f:
     question_html = f.read()
 
 # Situations that require a test folder to be created
-test_conditions = [
-    args.question_type == "coding", 
-    args.create_data_file == True
-]
+test_conditions = [args.question_type == "coding", args.create_data_file == True]
 
 # Create test folder if required
 if any(test_conditions):
@@ -68,14 +65,14 @@ if args.create_server_file:
                 'import prairielearn as pl\nimport pandas as pd\n\n\ndef generate(data):\n    df = pd.read_csv("tests/data.txt")\n    data["params"]["df"] = pl.to_json(df.head(10))\n'
             )
 
-    # Check for data_file
-    if args.create_data_file:
-        # create an empty data.txt. Note we need to add data manually
-        data_file_name = "{}/data.txt".format(test_folder)
-        if os.path.exists(data_file_name) is False:
-            print(f"create {data_file_name}")
-            with open(data_file_name, "w") as f:
-                f.write("")
+# Check for data_file
+if args.create_data_file:
+    # create an empty data.txt. Note we need to add data manually
+    data_file_name = "{}/data.txt".format(test_folder)
+    if os.path.exists(data_file_name) is False:
+        print(f"create {data_file_name}")
+        with open(data_file_name, "w") as f:
+            f.write("")
 
 # update tags in info.json
 tag_list = question_info["tags"]
@@ -245,7 +242,7 @@ course_json = "{}/infoCourse.json".format(args.pl_repo)
 if os.path.exists(course_json):
     with open(course_json, "r") as f:
         course_info = json.load(f)
-    current_question_types = [tag['name'] for tag in course_info['tags']]
+    current_question_types = [tag["name"] for tag in course_info["tags"]]
     if args.question_type not in current_question_types:
         print(
             f"question_type '{args.question_type}' is not in '{course_json}' - you may need to create it manually"
