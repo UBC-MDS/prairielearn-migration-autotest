@@ -4,7 +4,7 @@ import json
 from assessment_utils import QuestionBank
 
 ####
-# You need to provide the course details here, especially quiz_number
+# You need to provide the course details here, especially pl_repo, course_instance and quiz_number
 pl_repo = "pl-ubc-dsci523"
 course_instance = "Fall2024"
 quiz_set = "Quiz"
@@ -15,7 +15,7 @@ quiz_time = ""
 
 qb = QuestionBank(f"{pl_repo}/questions")
 
-# choose your questions using qb.find_questions. The function returns a list of QIDs that match all tags
+# Choose your questions using qb.find_questions. The function returns a list of QIDs that match all input tags
 # The example below are for 512. The first example is fot Quiz 1 and the second example if for Quiz 2
 pl_zones = [
     {
