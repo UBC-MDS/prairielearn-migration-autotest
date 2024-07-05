@@ -296,8 +296,9 @@ python question_bank/convert_autograde.py --pl_repo <pl_repo> --question_folder 
 > # EXPECT-ERROR sort_by_size(1)
 >```
 
-> For questions where the test variables are randomized, you need to write variables in '# DISPATCH' to check the type of the variables to generate test files 
+> For questions where the test variables are randomized, you need to write variables in '# DISPATCH' so that we can check the variable types to generate test files 
 >```python
+> import numpy as np
 > # SOLUTION
 > def max_rowsum(x):
 >     return np.max(np.sum(x, axis=1))
@@ -309,7 +310,7 @@ python question_bank/convert_autograde.py --pl_repo <pl_repo> --question_folder 
 > x1 = np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]])
 > # AUTOTEST {self.data["params"]["variable_name"]}(x1)
 > # DISPATCH max_rowsum(x1)
-```
+>```
 
 > If you want to test a data frame and it is okay to have a different column order:  
 >```r
@@ -317,7 +318,6 @@ python question_bank/convert_autograde.py --pl_repo <pl_repo> --question_folder 
 > result <- result[,order(names(result))]
 > # AUTOTEST result
 >```
-
 
 #### 4.2. Automatic Creation
 
