@@ -11,10 +11,22 @@ python:
 
     testfile_template: "from code_feedback import Feedback\nfrom pl_helpers import name, points\nfrom utils import source_ans, source_student, MyTestCase\n\n\nclass Test(MyTestCase):\n"
     dispatch: "type({{snippet}})"
-    test_case_template: "    @points({{score}})\n    @name('test {{test_expr}}')\n    def test_{{count}}(self):\n        ans_env = source_ans({{solution_params}})\n        student_env = source_student({{submission_params}})\n        if Feedback.{{check_fn}}('{{test_expr}}', eval('{{test_expr}}', ans_env), eval('{{test_expr}}', student_env)):\n            Feedback.set_score(1)\n        else:\n            Feedback.set_score(0)\n\n"
+    test_case_template: "    @points({{score}})\n    @name('test case {{count}}')\n    def test_{{count}}(self):\n        ans_env = source_ans({{solution_params}})\n        student_env = source_student({{submission_params}})\n        if Feedback.{{check_fn}}({{test_string}}, eval({{test_expr}}, ans_env), eval({{test_expr}}, student_env)):\n            Feedback.set_score(1)\n        else:\n            Feedback.set_score(0)\n\n"
 
     test_expr_templates:
         scalar:
+          - test: "{{snippet}}"
+            check_fn: 'check_scalar'
+            fail: "value of {{snippet}} is not correct"
+            point: 1.0
+
+        int64:
+          - test: "{{snippet}}"
+            check_fn: 'check_scalar'
+            fail: "value of {{snippet}} is not correct"
+            point: 1.0
+
+        float64:
           - test: "{{snippet}}"
             check_fn: 'check_scalar'
             fail: "value of {{snippet}} is not correct"
