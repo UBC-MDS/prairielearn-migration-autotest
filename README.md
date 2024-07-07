@@ -237,7 +237,7 @@ python question_bank/convert_autograde.py --pl_repo <pl_repo> --question_folder 
 > This assumes all questions are in the format as described in the [documentation](https://prairielearn.readthedocs.io/en/latest/question/)
 
 1. Write the code in the solution file
-   - If you need to use quotation marks, use the double quotation mark ("<string>") in the solution file. 
+   - If you need to use quotation marks, use only the double quotation mark ("<string>") in the solution file. 
 2. Make sure this file can be run
    - Import any libraries
    - Make sure any supplementary files exist (i.e. data files that are read)
@@ -248,6 +248,7 @@ python question_bank/convert_autograde.py --pl_repo <pl_repo> --question_folder 
 4. If needed, use `# TESTSETUP` to define additional variables or modify variables. All lines (except `AUTOTEST` and `EXPECT-ERROR`) after this `# TESTSETUP` tag will be added in students' submission files as well.
 5. Append one of the following to the solution file to tell PrairieLearn what to autograde
    - `# AUTOTEST <variable_name>` or `# AUTOTEST <function_name(value)>`
+   - `# DISPATCH <variable_name>` or `# DISPATCH <function_name(value)>`: specify the variables to determine variable types (see examples below)
    - `# EXPECT-ERROR <function_name(value)>`
 
 ###### Example
@@ -259,8 +260,8 @@ python question_bank/convert_autograde.py --pl_repo <pl_repo> --question_folder 
 > # AUTOTEST grades_data
 >```
 
->For coding questions with test cases, use `# TESTSETUP` to add the test cases. For example, 
->```r
+>For coding questions with test cases, use `# TESTSETUP` to define the test cases. For example, 
+>```python
 > # SOLUTION
 >def unravel(x):
 >    if not isinstance(x, list):
@@ -278,7 +279,7 @@ python question_bank/convert_autograde.py --pl_repo <pl_repo> --question_folder 
 >```
 
 >For coding questions with error handling, use `# EXPECT-ERROR`. For example,
->```
+>```r
 > # SOLUTION
 > sort_by_size <- function(sentences) { 
 >    if (!is.character(sentences)) {
@@ -295,13 +296,28 @@ python question_bank/convert_autograde.py --pl_repo <pl_repo> --question_folder 
 > # EXPECT-ERROR sort_by_size(1)
 >```
 
+> For questions where the test variables are randomized, you need to write variables in '# DISPATCH' so that we can check the variable types to generate test files 
+>```python
+> import numpy as np
+> # SOLUTION
+> def max_rowsum(x):
+>     return np.max(np.sum(x, axis=1))
+>
+> def min_rowsum(x):
+>     return np.min(np.sum(x, axis=1))
+> 
+> # TESTSETUP
+> x1 = np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]])
+> # AUTOTEST {self.data["params"]["variable_name"]}(x1)
+> # DISPATCH max_rowsum(x1)
+>```
+
 > If you want to test a data frame and it is okay to have a different column order:  
 >```r
 > # TESTSETUP 
 > result <- result[,order(names(result))]
 > # AUTOTEST result
 >```
-
 
 #### 4.2. Automatic Creation
 

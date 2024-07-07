@@ -36,11 +36,13 @@ def find_autotest_variables(
     file_path,
     test_delimiter="# AUTOTEST ",
     error_delimiter="# EXPECT-ERROR ",
+    dispatch_delimiter="# DISPATCH ",
     prefix_delimiter="# SOLUTION",
     postfix_delimiter="# TESTSETUP",
 ):
     test_variables = []
     error_variables = []
+    dispatch_variables = []
     lines_before_prefix_delimiter = []
     lines_after_postfix_delimiter = []
 
@@ -74,6 +76,11 @@ def find_autotest_variables(
                     line.strip().replace(error_delimiter, "").split(";")
                 )
 
+            elif dispatch_delimiter in line:
+                dispatch_variables.extend(
+                    line.strip().replace(dispatch_delimiter, "").split(";")
+                )
+
             else:
                 # Append the line to the list of lines before the marker
                 if find_prefix_delimiter is False:
@@ -84,6 +91,14 @@ def find_autotest_variables(
 
     test_variables = remove_empty_from_list(test_variables)
     error_variables = remove_empty_from_list(error_variables)
+    dispatch_variables = remove_empty_from_list(dispatch_variables)
+    if len(dispatch_variables) != 0:
+        assert len(test_variables) == len(
+            dispatch_variables
+        ), "Dispatch variables should have the same length as test variables"
+    elif len(dispatch_variables) == 0:
+        dispatch_variables = None
+
     lines_before_prefix_delimiter = remove_empty_from_list(
         lines_before_prefix_delimiter
     )
@@ -103,6 +118,7 @@ def find_autotest_variables(
     return (
         test_variables,
         error_variables,
+        dispatch_variables,
         prefix_code,
         postfix_code,
     )
