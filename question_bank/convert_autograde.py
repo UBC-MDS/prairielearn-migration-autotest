@@ -3,7 +3,6 @@ import argparse
 from bs4 import BeautifulSoup
 import os
 import yaml
-import re
 
 
 def str2bool(v):
