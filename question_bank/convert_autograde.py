@@ -3,6 +3,7 @@ import argparse
 from bs4 import BeautifulSoup
 import os
 import yaml
+import re
 
 
 def str2bool(v):
@@ -23,6 +24,7 @@ parser.add_argument("--question_type", default="coding")
 parser.add_argument("--initial_code_block", default="none")
 parser.add_argument("--create_data_file", default=False, type=str2bool)
 parser.add_argument("--create_server_file", default=False, type=str2bool)
+parser.add_argument("--create_workspace", default=False, type=str2bool)
 parser.add_argument("--mcq_block", default="none")
 parser.add_argument("--mcq_partial_credict", default="false")
 parser.add_argument("--language", default="python")
@@ -80,6 +82,9 @@ if "manual" in tag_list:
     tag_list.remove("manual")
 if args.question_type not in tag_list:
     tag_list.append(args.question_type)
+if args.create_workspace:
+    if "workspace" not in tag_list:
+        tag_list.append("workspace")
 question_info["tags"] = tag_list
 
 # Remove manual grader unless needed
@@ -104,6 +109,35 @@ if args.question_type == "coding":
         question_info["externalGradingOptions"]["serverFilesCourse"] = [
             autograder_info["server_files"]
         ]
+
+    # add workspace to info.json
+    if args.create_workspace:
+        question_info["workspaceOptions"] = {
+            "image": autograder_info["workspace_image"],
+            "port": autograder_info["workspace_port"],
+            "args": "",
+            "rewriteUrl": False,
+            "home": autograder_info["workspace_home"],
+            "gradedFiles": [
+                autograder_info["workspace_graded"]
+            ]
+        }
+
+    # Check workspace files
+    if args.create_workspace:
+        workspace_folder = "{}/workspace".format(question_folder)
+        if os.path.exists(workspace_folder) is False:
+            os.mkdir(workspace_folder)
+        if args.language == "r":
+            r_profile_file_name = "{}/.Rprofile".format(workspace_folder)
+            if os.path.exists(r_profile_file_name) is False:
+                r_code = '''setHook("rstudio.sessionInit", function(newSession) {
+  file.edit("submission.R")
+}, action = "append")
+'''
+                print(f"create {r_profile_file_name}")
+                with open(r_profile_file_name, "w") as f:
+                    f.write(r_code)
 
     # update question.html
     soup = BeautifulSoup(question_html, features="html.parser")
@@ -141,23 +175,38 @@ if args.question_type == "coding":
     for block_to_remove in blocks_to_remove:
         block_to_remove.extract()
 
-    # add code editor and grader result
+    # add code editor and grader result or workspace
     question_html = str(soup)
-    file_editor_blocks = soup.find_all("pl-file-editor")
-    if len(file_editor_blocks) == 0:
-        question_html += '<pl-file-editor file-name="{}" ace-mode="{}" source-file-name="{}"></pl-file-editor>\n'.format(
-            autograder_info["submission_file_name"],
-            autograder_info["ace_mode"],
-            autograder_info["source_file_name"],
-        )
+    if not args.create_workspace:
+        file_editor_blocks = soup.find_all("pl-file-editor")
+        if len(file_editor_blocks) == 0:
+            question_html += '<pl-file-editor file-name="{}" ace-mode="{}" source-file-name="{}"></pl-file-editor>\n'.format(
+                autograder_info["submission_file_name"],
+                autograder_info["ace_mode"],
+                autograder_info["source_file_name"],
+            )
+    else:
+        workspace_blocks = soup.find_all("pl-workspace")
+        if len(workspace_blocks) == 0:
+            question_html += '\n<pl-workspace></pl-workspace>\n'
+        preview_blocks = soup.find_all("pl-workspace")
+        if len(preview_blocks) == 0:
+            question_html += '<pl-file-preview></pl-file-preview>\n'
+        
     results_blocks = soup.find_all("pl-external-grader-results")
     if len(results_blocks) == 0:
         question_html += "<pl-external-grader-results></pl-external-grader-results>"
 
     # create the initial code file
-    source_file_name = "{}/{}".format(
-        question_folder, autograder_info["source_file_name"]
-    )
+    if args.create_workspace:
+        source_file_name = "{}/{}".format(
+            workspace_folder, autograder_info["submission_file_name"]
+        )
+    else:
+        source_file_name = "{}/{}".format(
+            question_folder, autograder_info["source_file_name"]
+        )
+    
     if os.path.exists(source_file_name) is False:
         with open(source_file_name, "w") as f:
             f.write(code_text)

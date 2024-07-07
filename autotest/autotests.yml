@@ -8,6 +8,11 @@ python:
         source_file_name: "initial_code.py"
         solution_file_name: "ans.py"
         test_file_name: "test.py"
+        workspace_image: "prairielearn/workspace-jupyterlab-python"
+        workspace_port: 8080
+        workspace_home: "/home/jovyan"
+        workspace_graded: "user_code.py"
+
 
     testfile_template: "from code_feedback import Feedback\nfrom pl_helpers import name, points\nfrom utils import source_ans, source_student, MyTestCase\n\n\nclass Test(MyTestCase):\n"
     dispatch: "type({{snippet}})"
@@ -67,6 +72,10 @@ r:
         source_file_name: "initial_code.R"
         solution_file_name: "solution.R"
         test_file_name: "test.R"
+        workspace_image: "zacwarham/ubc-mds-pl:523"
+        workspace_port: 3939
+        workspace_home: "/home/rstudio/workspace"
+        workspace_graded: "submission.R"
 
     testfile_template: "library(tinytest)\nsource('/grade/run/utils.R')\n\n"
     source_template: "solution <- source_solution({{solution_params}})\nstudent <- source_submission({{submission_params}})\n\n"
