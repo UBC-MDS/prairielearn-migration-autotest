@@ -4,6 +4,7 @@ import html2text
 from glob import glob
 import os
 from openai_utils import get_folder_name
+import uuid
 
 
 parser = argparse.ArgumentParser()
@@ -26,7 +27,7 @@ question_list = glob(
 )
 question_list.sort()
 
-# TODO: check the file exists
+# check the file exists
 if os.path.exists(args.slug_file_path):
     print(f"reading {args.slug_file_path}")
     with open(args.slug_file_path, "r") as f:
@@ -37,6 +38,7 @@ else:
 print("processing {} questions".format(len(question_list)))
 question_check_list = []
 count = -1
+unnamed_questions_count = 0
 for question_folder in question_list:
     count += 1
 
@@ -55,21 +57,31 @@ for question_folder in question_list:
 
     if len(question_text) > 2000:
         # if the question is too long. do not call the API to save cost
-        print(f"skip the question {count}: {question_folder}")
-        question_check_list.append(question_folder)
-        continue
+        print(f"Use `others` for question {count}: {question_folder}")
+        # use others/unnamed_question_1, ...
+        lecture_obj_slug = "others"
+        question_slug = f"unnamed_question_{unnamed_questions_count}"
+        question_title = f"Unnamed Question {unnamed_questions_count}"
+        unnamed_questions_count += 1
+    else:
+        respond = get_folder_name(
+            name_mapping, question_text, model_name=args.model_type
+        )
+        respond = respond.replace("```", "").replace("plaintext", "")
+        respond = respond.replace(".", "")
+        outputs = respond.split("\n")
 
-    respond = get_folder_name(name_mapping, question_text, model_name=args.model_type)
-    respond = respond.replace(".", "")
-    outputs = respond.split("\n")
-    if len(outputs) < 3:
-        print(f"check this question {count}: {question_folder}")
-        question_check_list.append(question_folder)
-        continue
-
-    lecture_obj_slug = outputs[0]
-    question_slug = outputs[1]
-    question_title = outputs[2]
+        if len(outputs) < 3:
+            print(f"Use `others` for question {count}: {question_folder}")
+            # use others/unnamed_question_1, ...
+            lecture_obj_slug = "others"
+            question_slug = f"unnamed_question_{unnamed_questions_count}"
+            question_title = f"Unnamed Question {unnamed_questions_count}"
+            unnamed_questions_count += 1
+        else:
+            lecture_obj_slug = outputs[0]
+            question_slug = outputs[1]
+            question_title = outputs[2]
 
     suffix = 0
     if os.path.exists(
@@ -104,6 +116,7 @@ for question_folder in question_list:
             os.mkdir(new_folder)
 
     # write data
+    question_info["uuid"] = str(uuid.uuid4())
     question_info["title"] = question_title
     question_info["topic"] = lecture_slug.split("_")[-1]
     question_info["tags"] = [obj_slug.split("_")[-1]]
