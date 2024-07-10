@@ -37,6 +37,7 @@ else:
 print("processing {} questions".format(len(question_list)))
 question_check_list = []
 count = -1
+question_list = [question_list[i] for i in [75]]
 for question_folder in question_list:
     count += 1
 
@@ -62,7 +63,7 @@ for question_folder in question_list:
     respond = get_folder_name(name_mapping, question_text, model_name=args.model_type)
     respond = respond.replace(".", "")
     outputs = respond.split("\n")
-    if len(outputs) != 3:
+    if len(outputs) < 3:
         print(f"check this question {count}: {question_folder}")
         question_check_list.append(question_folder)
         continue
