@@ -37,7 +37,6 @@ else:
 print("processing {} questions".format(len(question_list)))
 question_check_list = []
 count = -1
-question_list = [question_list[i] for i in [75]]
 for question_folder in question_list:
     count += 1
 
