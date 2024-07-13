@@ -143,7 +143,7 @@ At this stage, every question is labelled as *manually* graded in the `config.js
 > This will require an understanding of the course content
 >> You will need to do one of the following, make the solution yourself, ask ChatGPT, or consult the professor
 
-- The `convert_autograde` script has the following optional parameters that can be applied to each question type
+- The `convert_autograde` script has the following optional parameters that can be applied to all question type
    - `--create_data_file True` - this will create an empty `data.txt` file
    - `--create_server_file True` - this will create an empty `server.py` file
 
@@ -172,6 +172,13 @@ Skip ahead to the section that is relevant for your question type
 > This is for questions that could have multiple solutions, i.e. not TRUE/FALSE or numeric options
 >> This documentation will be updated for those questions as time goes by
 
+- The `convert_autograde` script has the following optional parameters that can be applied to `MCQ` questions
+   - `--mcq_block <checkbox or multiple-choice>` to define the type of `MCQ` question
+   - `--mcq_partial_credit <COV or EDC or PC>` to define the grading method. More details [here](https://prairielearn.readthedocs.io/en/latest/elements/#partial-credit-grading)
+   - Any additional parameters mentioned at the start of **3.2.3.**
+
+[//]: <> (# Create white space in the markdown)
+
 - Run the following script and fill in the blanks from **3.2.2.**
    - This will create the file structures required for a `MCQ`
    - It will also edit the `config.json`
@@ -195,7 +202,6 @@ python question_bank/convert_autograde.py --pl_repo <pl_repo> --question_folder 
   <pl-answer correct="<boolean>">Option 2</pl-answer>
   ...
 </pl-multiple-choice>
-
 ```
 2. Save them inside of `<question_folder>/question.html`
 3. Make sure the question is correct
@@ -204,22 +210,29 @@ python question_bank/convert_autograde.py --pl_repo <pl_repo> --question_folder 
 
 ##### Coding
 
+- The `convert_autograde` script has the following optional parameters that can be applied to `coding` questions
+   - `--create_workspace True` - this will create a workspace based on `--language`
+   - Any additional parameters mentioned at the start of **3.2.3.**
+
+[//]: <> (# Create white space in the markdown)
+
 - Run the following script and fill in the blanks from **3.2.2.**
    - This will create the file structures required for a `coding` question
    - It will create either `initial_code.R` or `initial_code.py`
    - It will create a `test` folder with a solution file for the relevant language
    - It will also edit the `config.json`
+   - Can optionally create a `workspace` instead of a `<pl-file-editor>`
 
 > Don't forget the optional parameters if you need them
 
 ```
-python question_bank/convert_autograde.py --pl_repo <pl_repo> --question_folder <question_folder> --question_type <coding or mcq> --initial_code_block <> --language <python or r>
+python question_bank/convert_autograde.py --pl_repo <pl_repo> --question_folder <question_folder> --question_type <coding or mcq> --initial_code_block <> --language <python or r> --create_server_file <> --create_data_file <> --create_workspace <>
 ```
 
 - Now you must go through a series of steps to prepare the solution for autograding. Follow steps in 4.1
    - It is hoped in the future that some of these steps will be moved to the above script
 
-##### Numeric
+##### Input
 > We do not cover this yet
 
 ##### Manual
