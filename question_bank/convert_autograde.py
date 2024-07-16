@@ -29,7 +29,7 @@ parser.add_argument("--mcq_partial_credict", default="false")
 parser.add_argument("--language", default="python")
 parser.add_argument("--config_path", default="autotest/autotests.yml")
 args = parser.parse_args()
-assert args.question_type in ["coding", "mcq", "numeric", "matching", "order-blocks"]
+assert args.question_type in ["coding", "mcq", "input", "matching", "order-blocks"]
 assert args.mcq_block in ["none", "checkbox", "multiple-choice"]
 assert args.mcq_partial_credict in ["false", "COV", "EDC", "PC"]
 assert args.language in ["r", "python"]
