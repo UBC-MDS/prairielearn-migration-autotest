@@ -138,32 +138,28 @@ At this stage, every question is labelled as *manually* graded in the `config.js
    - `SQL` is not covered here
 
 
-#### 3.2.3. Create Solutions
+#### 3.2.3. Create Question
 
 > This will require an understanding of the course content
 >> You will need to do one of the following, make the solution yourself, ask ChatGPT, or consult the professor
 
+All PrairieLearn questions require a question file which displays the layout of the question. Each question type must be graded according to one of the following three methods:
+
+1. *Internal Autograder*
+2. *External Autograder*
+3. *Manually Graded*
+
+The majority of question types will fall under the *Internal Autograder* category. The solutions to these questions are included inside the `question.html` file, typically using attributes within the HTML. Some questions will rely on our *External Autograder*, namely `coding` questions. The solution for these questions must be defined in a separate file and will require you to generate test files accordingly. *Manually Graded* questions will rely on the instructor to keep track of the solutions in an organised and secure fashion so that they are only accessible by the relevant parties.
+
+For questions that use the *Internal Autograder*, our script may provide some assistance in automating the question generation process (detailed in this section if so). However, the [PrairieLearn documentation](https://prairielearn.readthedocs.io/en/latest/elements/) should be consulted to ensure your questions are kept inline with the version of PrairieLearn that is deployed. For questions using our *External Autograder*, please see **4.1** for instructions after completing the steps in this section.
+
+A lot of questions will benefit from the inclusion of data from an external file or by randomisation of the question parameters and/or data. Details will be provided where appropriate on how to do this, with some further information provided at the end of **Section 3**. It is recommended to consult this section **during** the creation of questions to reduce the time to develop each question.
+
+Creating questions is assisted through the development of our `convert_autograde` script. This will assist with ensuring questions match the standard template for PrairieLearn that is used by the MDS. It will include features such as reformatting questions and updating the `info.json` file with the appropriate details.
+
 - The `convert_autograde` script has the following optional parameters that can be applied to all question type
    - `--create_data_file True` - this will create an empty `data.txt` file
    - `--create_server_file True` - this will create an empty `server.py` file
-
-##### Example
-
-> Add this to the `server.py` file
->
-> ````
->def generate(data):
->  df = pd.read_csv("tests/data.txt")
->  data["params"]["df"] = pl.to_json(df.head(10))
->````
->
-> Replace the data in the `question.html` file with this
->
-> ````
-><pl-dataframe params-name="df" show-index="false" show-dimensions="false" digits="4" display-language="r" show-python="false" show-dtype="true"></pl-dataframe>
->````
-
-- If the data contain `NA`, then you will need to add `keep_default_na=False` in `pd.read_csv()` to avoid getting errors. 
 
 Skip ahead to the section that is relevant for your question type
 
@@ -237,6 +233,36 @@ python question_bank/convert_autograde.py --pl_repo <pl_repo> --question_folder 
 
 ##### Manual
 > Manual questions should already be in the correct format
+
+### 3.3. Importing Data and Randomisation
+
+- We recommend doing this during the creation of a question in **3.2.** but it can be performed retroactively as well.
+
+#### 3.3.1. Importing Data
+
+> This section is a work in progress
+
+##### Example
+
+> Add this to the `server.py` file
+>
+> ````
+>def generate(data):
+>  df = pd.read_csv("tests/data.txt")
+>  data["params"]["df"] = pl.to_json(df.head(10))
+>````
+>
+> Replace the data in the `question.html` file with this
+>
+> ````
+><pl-dataframe params-name="df" show-index="false" show-dimensions="false" digits="4" display-language="r" show-python="false" show-dtype="true"></pl-dataframe>
+>````
+
+- If the data contain `NA`, then you will need to add `keep_default_na=False` in `pd.read_csv()` to avoid getting errors. 
+
+#### 3.3.2 Randomising Questions
+
+> This section is to be updated in the future
 
 ## 4. Generating test files
 
