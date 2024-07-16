@@ -96,7 +96,7 @@ Spend some time reviewing the `slug.txt` file and modify the learning objectives
 
 Then run the script to label each question with the corresponding lecture and learning objective slug: 
 ```
-python question_bank/organize_questions.py --pl_repo <pl_repo> --lo_file_path <slug_path>
+python question_bank/organize_questions.py --pl_repo <pl_repo> --slug_file_path <slug_path>
 ```
 
 ### 3.2. Convert questions to MCQ or coding questions
