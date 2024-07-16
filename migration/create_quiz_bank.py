@@ -9,7 +9,10 @@ import canvas
 
 
 def file_name_only(name):
-    return re.sub("[\W_]+", "", name)
+    if name is not None:
+        return re.sub("[\W_]+", "", name)
+    else:
+        return ""
 
 
 parser = argparse.ArgumentParser()
@@ -79,11 +82,12 @@ for course_id in course_dict.keys():
             print()
 
             # automatically set titles, as title will be changed later
-            question_title = "{}-{}-{}".format(
+            question_title = "{}-Q{}-{}".format(
                 file_name_only(quiz["title"]),
-                file_name_only(question["question_name"]),
-                question["id"],
+                count,
+                file_name_only(question["question_name"])
             )
+            count += 1
             suffix = 0
             while os.path.exists(os.path.join(questions_dir, question_title)):
                 suffix += 1
@@ -112,7 +116,7 @@ for course_id in course_dict.keys():
                 obj = {
                     "uuid": str(uuid.uuid4()),
                     "type": "v3",
-                    "title": question["question_name"],
+                    "title": question["question_name"] if question["question_name"] is not None else "Unnamed Question",
                     "topic": "None",
                     "tags": ["fromcanvas"],
                 }
@@ -260,6 +264,74 @@ for course_id in course_dict.keys():
                         dropdown += "</pl-dropdown>"
                         question_text = question_text.replace(f"[{blank}]", dropdown)
                     template.write(question_text + "\n")
+
+                elif question["question_type"] == "matching":
+                    # new quiz format
+                    template.write('<pl-matching answers-name="match">\n')
+                    for choice in question["interaction_data"]["questions"]:
+                        template.write(
+                            f'  <pl-statement match="{question["entry"]["scoring_data"]['value'][choice['id']]}">{choice['item_body']}</pl-statement>\n'
+                        )
+                    template.write("</pl-matching>\n")
+
+                elif question["question_type"] == "choice":
+                    # new quiz format
+                    template.write('<pl-multiple-choice answers-name="mc">\n')
+                    for answer in question["interaction_data"]["choices"]:
+                        if answer["id"] in question["entry"]["scoring_data"]["value"]:
+                            template.write('  <pl-answer correct="true">')
+                        else:
+                            template.write("  <pl-answer>")
+                        template.write(answer["item_body"] + "</pl-answer>\n")
+                    template.write("</pl-multiple-choice>\n")
+
+                elif question["question_type"] == "true-false":
+                    # new quiz format
+                    template.write('<pl-multiple-choice answers-name="mc">\n')
+                    if question["entry"]["scoring_data"]["value"]:
+                        template.write('  <pl-answer correct="true"> True </pl-answer>\n')
+                        template.write('  <pl-answer> False </pl-answer>\n')
+                    else:
+                        template.write('  <pl-answer> True </pl-answer>\n')
+                        template.write('  <pl-answer correct="true"> False </pl-answer>\n')
+                    template.write("</pl-multiple-choice>\n")
+
+                elif question["question_type"] == "multi-answer":
+                    # new quiz format
+                    template.write('<pl-checkbox answers-name="checkbox">\n')
+                    for answer in question["interaction_data"]["choices"]:
+                        if answer["id"] in question["entry"]["scoring_data"]["value"]:
+                            template.write('  <pl-answer correct="true">')
+                        else:
+                            template.write("  <pl-answer>")
+                        template.write(answer["item_body"] + "</pl-answer>\n")
+                    template.write("</pl-checkbox>\n")
+
+                elif question["question_type"] == "rich-fill-blank":
+                    # new quiz format
+                    question_text = question["question_text"]
+                    options = {}
+                    for answer in question["entry"]["scoring_data"]["value"]:
+                        if answer["id"] not in options:
+                            options[answer["id"]] = answer["scoring_data"]["value"]
+                    for answer_id, answers in options.items():
+                        question_text = question_text.replace(
+                            f'<span id="blank_{answer_id}"></span>',
+                            f'<pl-string-input answers-name="{answer_id}" correct-answer="{answers}" remove-spaces="true" ignore-case="true" display="inline"></pl-string-input>',
+                        )
+                    template.write(question_text + "\n")
+
+                # elif question["question_type"] == "ordering":
+                #     # TODO: ordering
+                #     print('')
+                #     template.write('<pl-order-blocks answers-name="order-numbers">\n')
+                #     for answer in question["interaction_data"]["choices"]:
+                #         if answer["id"] in question["entry"]["scoring_data"]["value"]:
+                #             template.write('  <pl-answer correct="true">')
+                #         else:
+                #             template.write("  <pl-answer>")
+                #         template.write(answer["item_body"] + "</pl-answer>\n")
+                #     template.write("</pl-order-blocks>\n")
 
                 else:
                     input("Unsupported question type: " + question["question_type"])

@@ -236,25 +236,69 @@ class NewQuiz(CourseSubObject):
     def questions(self, qfilter=None):
         """docstring"""
         questions = {}
+        stimulus = {}
         groups = {}
-        i = 1
         for result in self.request(f"{self.object_url_prefix}/items?per_page=100"):
             for question in result:
                 new_question_dict = {}
-                for key in ["id", "position", "points_possible"]:
+                for key in question.keys():
                     new_question_dict[key] = question[key]
 
-                new_question_dict["question_name"] = question["entry"]["title"]
-                new_question_dict["question_text"] = question["entry"]["item_body"]
-                new_question_dict["question_type"] = question["entry"][
-                    "interaction_type_slug"
-                ]
-                new_question_dict["interaction_data"] = question["entry"][
-                    "interaction_data"
-                ]
-                new_question_dict["answer_feedback"] = question["entry"][
-                    "answer_feedback"
-                ]
+                if question["entry_type"] == "Item":
+                    # Item
+                    new_question_dict["question_name"] = question["entry"]["title"]
+                    new_question_dict["question_text"] = question["entry"]["item_body"]
+                    new_question_dict["question_type"] = question["entry"][
+                        "interaction_type_slug"
+                    ]
+                    new_question_dict["interaction_data"] = question["entry"][
+                        "interaction_data"
+                    ]
+                    new_question_dict["answer_feedback"] = question["entry"][
+                        "answer_feedback"
+                    ]
+                    if (
+                        question["stimulus_quiz_entry_id"] != ""
+                        and question["stimulus_quiz_entry_id"] in stimulus.keys()
+                    ):
+                        # stimulus[question["stimulus_quiz_entry_id"]]
+                        new_question_dict["question_text"] = (
+                            "Context\n"
+                            + stimulus[question["stimulus_quiz_entry_id"]]
+                            + "End of Context\n\n"
+                            + new_question_dict["question_text"]
+                        )
+                elif question["entry_type"] == "Stimulus":
+                    # Item -> Stimulus
+                    stimulus[question["id"]] = question["entry"]["body"]
+                    continue
+                elif question["entry_type"] == "BankEntry":
+                    # BankEntry
+                    actual_question = question["entry"]
+                    if actual_question["entry_type"] == "Item":
+                        # BankEntry Item
+                        new_question_dict["entry"] = actual_question["entry"]
+                        new_question_dict["question_name"] = actual_question["entry"][
+                            "title"
+                        ]
+                        new_question_dict["question_text"] = actual_question["entry"][
+                            "item_body"
+                        ]
+                        new_question_dict["question_type"] = actual_question["entry"][
+                            "interaction_type_slug"
+                        ]
+                        new_question_dict["interaction_data"] = actual_question[
+                            "entry"
+                        ]["interaction_data"]
+                        new_question_dict["answer_feedback"] = actual_question["entry"][
+                            "answer_feedback"
+                        ]
+                    elif actual_question["entry_type"] == "Stimulus":
+                        # BankEntry Stimulus
+                        stimulus[question["id"]] = question["entry"]["entry"]["body"]
+                        continue
+                else:
+                    raise KeyError
                 questions[question["id"]] = new_question_dict
 
         return (
