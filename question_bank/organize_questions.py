@@ -117,8 +117,8 @@ for question_folder in question_list:
     # write data
     question_info["uuid"] = str(uuid.uuid4())
     question_info["title"] = responses["question_title"]
-    question_info["topic"] = responses["lec_slug"]
-    question_info["tags"] = [responses["lo_slug"]]
+    question_info["topic"] = responses["lec_slug"].replace("lec_", "")
+    question_info["tags"] = [responses["lo_slug"].replace("obj_", "")]
     if (
         "gradingMethod" in question_info.keys()
         and question_info["gradingMethod"] == "Manual"
