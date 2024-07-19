@@ -55,71 +55,70 @@ for question_folder in question_list:
         .replace("  ", " ")
     )
 
-    if len(question_text) > 2000:
+    if len(question_text) > 5000:
         # if the question is too long. do not call the API to save cost
-        print(f"Use `others` for question {count}: {question_folder}")
+        print(
+            f"Question too long. Use `others` for question {count}: {question_folder}"
+        )
         # use others/unnamed_question_1, ...
         lecture_obj_slug = "others"
-        question_slug = f"unnamed_question_{unnamed_questions_count}"
+        question_slug = f"unnamed-question-{unnamed_questions_count}"
         question_title = f"Unnamed Question {unnamed_questions_count}"
         unnamed_questions_count += 1
     else:
-        respond = get_folder_name(
+        responses = get_folder_name(
             name_mapping, question_text, model_name=args.model_type
         )
-        respond = respond.replace("```", "").replace("plaintext", "")
-        respond = respond.replace(".", "")
-        outputs = respond.split("\n")
 
-        if len(outputs) < 3:
-            print(f"Use `others` for question {count}: {question_folder}")
-            # use others/unnamed_question_1, ...
-            lecture_obj_slug = "others"
-            question_slug = f"unnamed_question_{unnamed_questions_count}"
-            question_title = f"Unnamed Question {unnamed_questions_count}"
+        key_list = list(responses.keys())
+        if "lec_slug" not in key_list:
+            responses["lec_slug"] = "others"
+
+        if "lo_slug" not in key_list:
+            responses["lo_slug"] = "others"
+
+        if "question_slug" not in key_list:
+            responses["question_slug"] = f"unnamed-question-{unnamed_questions_count}"
             unnamed_questions_count += 1
-        else:
-            lecture_obj_slug = outputs[0]
-            question_slug = outputs[1]
-            question_title = outputs[2]
 
+        if "question_title" not in key_list:
+            responses["question_title"] = "Unnamed question"
+
+    # add suffix if the question folder already exists
     suffix = 0
     if os.path.exists(
-        os.path.join(question_root_folder, lecture_obj_slug, question_slug)
+        os.path.join(
+            question_root_folder,
+            responses["lec_slug"],
+            responses["lo_slug"],
+            responses["question_slug"],
+        )
     ):
-        new_question_slug = question_slug
+        new_question_slug = responses["question_slug"]
         while os.path.exists(
-            os.path.join(question_root_folder, lecture_obj_slug, new_question_slug)
+            os.path.join(
+                question_root_folder,
+                responses["lec_slug"],
+                responses["lo_slug"],
+                new_question_slug,
+            )
         ):
             suffix += 1
-            new_question_slug = f"{question_slug}_{suffix}"
-        question_slug = new_question_slug
+            new_question_slug = f"{responses["question_slug"]}_{suffix}"
+        responses["question_slug"] = new_question_slug
 
-    if len(lecture_obj_slug.split("/")) == 1:
-        lecture_slug = lecture_obj_slug
-        obj_slug = lecture_obj_slug
-        new_folder_extension_list = [lecture_obj_slug, question_slug]
-
-    elif len(lecture_obj_slug.split("/")) == 2:
-        lecture_slug, obj_slug = lecture_obj_slug.split("/")
-        new_folder_extension_list = [lecture_slug, obj_slug, question_slug]
-
-    else:
-        print(f"check this question {count}: {question_folder}")
-        question_check_list.append(question_folder)
-        continue
-
+    # create question folder
     new_folder = question_root_folder
-    for new_folder_extension in new_folder_extension_list:
+    for new_folder_extension in [responses["lec_slug"], responses["lo_slug"], responses["question_slug"]]:
         new_folder += "/{}".format(new_folder_extension)
         if os.path.exists(new_folder) is False:
             os.mkdir(new_folder)
 
     # write data
     question_info["uuid"] = str(uuid.uuid4())
-    question_info["title"] = question_title
-    question_info["topic"] = lecture_slug.split("_")[-1]
-    question_info["tags"] = [obj_slug.split("_")[-1]]
+    question_info["title"] = responses["question_title"]
+    question_info["topic"] = responses["lec_slug"].replace("lec_", "")
+    question_info["tags"] = [responses["lo_slug"].replace("obj_", "")]
     if (
         "gradingMethod" in question_info.keys()
         and question_info["gradingMethod"] == "Manual"
