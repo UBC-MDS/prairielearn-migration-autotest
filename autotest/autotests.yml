@@ -8,7 +8,7 @@ python:
         source_file_name: "initial_code.py"
         solution_file_name: "ans.py"
         test_file_name: "test.py"
-        workspace_image: "zacwarham/ubc-mds-pl:base-python"
+        workspace_image: "ubcmds/000-python:updateme"
         workspace_port: 8080
         workspace_home: "/home/jovyan"
         workspace_graded: "user_code.py"
@@ -72,7 +72,7 @@ r:
         source_file_name: "initial_code.R"
         solution_file_name: "solution.R"
         test_file_name: "test.R"
-        workspace_image: "zacwarham/ubc-mds-pl:base-r"
+        workspace_image: "ubcmds/000-r:updateme"
         workspace_port: 3939
         workspace_home: "/home/rstudio/workspace"
         workspace_graded: "submission.R"

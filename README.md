@@ -218,6 +218,7 @@ python question_bank/convert_autograde.py --pl_repo <pl_repo> --question_folder 
    - It will create a `test` folder with a solution file for the relevant language
    - It will also edit the `config.json`
    - Can optionally create a `workspace` instead of a `<pl-file-editor>`
+     - Don't forget to update the image using the [PrairieLearn Dockers](https://github.com/UBC-MDS/prairielearn-dockers) `update_image.py` script
 
 > Don't forget the optional parameters if you need them
 
