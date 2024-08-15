@@ -37,8 +37,23 @@ parser.add_argument("--questions_scope")
 parser.add_argument("--update_infoCourse", default=False, type=str2bool)
 parser.add_argument("--course_status", default="update")
 
+parser.add_argument("--course_defaults", default=False, type=str2bool)
+
 args = parser.parse_args()
 args_dict = vars(args)  # Convert Namespace to dict for **kwargs usage
+
+# Set a course to defaults
+if args.course_defaults:
+    parsed_args = {k: v for k, v in args_dict.items() if parser.get_default(k) != v}
+    if len(parsed_args) != 2:
+        print("Error: if you are trying to reset a course to defaults, you can only use --pl_repo and --course_defaults")
+        exit()
+    
+    # Default options
+    args.clear_questions = True
+    args.questions_scope = "template"
+    args.remove_instance = True
+    args.update_infoCourse = True
 
 # Assertions
 if args.create_instance:
