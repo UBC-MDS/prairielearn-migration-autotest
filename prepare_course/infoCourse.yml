@@ -1,0 +1,35 @@
+pl:
+  options:
+    useNewQuestionRenderer: true
+  topics:
+    - name: others
+      color: orange1
+  tags:
+    - name: mcq
+      color: green1
+      description: The answer format is choosing from a small finite set of answers.
+    - name: coding
+      color: turquoise1
+      description: The answer format is a piece of code.
+    - name: input
+      color: blue1
+      description: The answer format is for an autograded input field.
+    - name: survey
+      color: brown3
+      description: The answer is opinion based that shouldn't be graded.
+    - name: order-blocks
+      color: yellow3
+      description: This requires the user to drag blocks around.
+    - name: matching
+      color: blue3
+      description: The answer is a dropdown from a dictionary.
+    - name: dropdown
+      color: blue2
+      description: The answer is a dropdown from a list.
+    - name: needs-context
+      color: red1
+      description: Needs to be linked to a question or context.
+    - name: manual
+      color: red2
+      description: Manually graded question.
+  timezone: Canada/Pacific
