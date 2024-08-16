@@ -272,7 +272,7 @@ Our `convert_autograde` script can also be used to create/edit files to use work
 python question_bank/convert_autograde.py --pl_repo <pl_repo> --question_folder <question_folder> --question_type coding --create_workspace True --language python
 ```
 
-- Please update `autotest.yml` if you want to use specific workspace image.
+- Please update `autotest.yml` if you want to use specific workspace image (the default option is to use base images from [ubcmds](https://hub.docker.com/u/ubcmds). Please make a copy of the `autotest.yml` template and modify it. 
 - The script will update `info.json` to specify the workspace image and add the `workspace` tag. If the question uses a autograder, the graded files will also be added so that the question can still be autograded.  
 - A new folder `workspace` with necessary files will be created automatically.
 - Some html tags such as `<pl-workspace></pl-workspace>` and `<pl-file-preview></pl-file-preview>` (only for coding question) will be added to `question.html`. Please make sure these tags are placed in the correct place. 
