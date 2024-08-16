@@ -54,5 +54,11 @@ for question_folder in all_question_folders:
 
         with open("{}/info.json".format(question_folder), "w") as f:
             json.dump(question_info, f, indent=2)
+    elif "others" in slugs:
+        if question_info["topic"] != "others":
+            question_info["topic"] = "others"
+
+        with open("{}/info.json".format(question_folder), "w") as f:
+            json.dump(question_info, f, indent=2)
     else:
         logging.info(f"{question_folder}: Does not find lecture and obj slug")

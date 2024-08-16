@@ -29,14 +29,17 @@ parser.add_argument("--mcq_partial_credict", default="false")
 parser.add_argument("--language", default="python")
 parser.add_argument("--config_path", default="autotest/autotests.yml")
 args = parser.parse_args()
-assert args.question_type in ["coding", "mcq", "input", "matching", "order-blocks"]
+assert args.question_type in [
+    "coding",
+    "mcq",
+    "input",
+    "matching",
+    "order-blocks",
+    "manual",
+]
 assert args.mcq_block in ["none", "checkbox", "multiple-choice"]
 assert args.mcq_partial_credict in ["false", "COV", "EDC", "PC"]
 assert args.language in ["r", "python"]
-if args.create_workspace:
-    assert (
-        args.question_type == "coding"
-    ), "Question type must be coding to use workspace."
 
 question_folder = "{}/questions/{}".format(args.pl_repo, args.question_folder)
 with open("{}/info.json".format(question_folder), "r") as f:
@@ -44,10 +47,17 @@ with open("{}/info.json".format(question_folder), "r") as f:
 with open("{}/question.html".format(question_folder), "r") as f:
     question_html = f.read()
 
-# Situations that require a test folder to be created
-test_conditions = [args.question_type == "coding", args.create_data_file == True]
+if args.question_type == "coding" or args.create_workspace:
+    print("loading template autotests.yml...")
+    with open(args.config_path, "r") as f:
+        autotest_config_dict = yaml.safe_load(f)
+    autograder_info = autotest_config_dict[args.language]["pl"]
 
-# Create test folder if required
+# Situations that require a test folder to be created
+test_conditions = [args.question_type == "coding", args.create_data_file is True]
+
+# Create folders and files #
+# Create tests/ folder if required
 if any(test_conditions):
     # creat a test folder
     test_folder = "{}/tests".format(question_folder)
@@ -59,7 +69,7 @@ if any(test_conditions):
             print("remove {}/ans.R".format(test_folder))
             os.remove("{}/ans.R".format(test_folder))
 
-# Check for server_file
+# Create server.py if required
 if args.create_server_file:
     # create a server file to read data.txt
     server_file_name = "{}/server.py".format(question_folder)
@@ -70,16 +80,41 @@ if args.create_server_file:
                 'import prairielearn as pl\nimport pandas as pd\n\n\ndef generate(data):\n    df = pd.read_csv("tests/data.txt")\n    data["params"]["df"] = pl.to_json(df.head(10))\n'
             )
 
-# Check for data_file
+# Create data.txt
 if args.create_data_file:
-    # create an empty data.txt. Note we need to add data manually
+    # Create an empty data.txt. Note we need to add data manually
     data_file_name = "{}/data.txt".format(test_folder)
     if os.path.exists(data_file_name) is False:
         print(f"create {data_file_name}")
         with open(data_file_name, "w") as f:
             f.write("")
 
-# update tags in info.json
+# Create workspace to info.json
+if args.create_workspace:
+    question_info["workspaceOptions"] = {
+        "image": autograder_info["workspace_image"],
+        "port": autograder_info["workspace_port"],
+        "args": "",
+        "rewriteUrl": False,
+        "home": autograder_info["workspace_home"],
+    }
+
+    workspace_folder = "{}/workspace".format(question_folder)
+    if os.path.exists(workspace_folder) is False:
+        os.mkdir(workspace_folder)
+    if args.language == "r":
+        r_profile_file_name = "{}/.Rprofile".format(workspace_folder)
+        if os.path.exists(r_profile_file_name) is False:
+            r_code = """setHook("rstudio.sessionInit", function(newSession) {
+  file.edit("submission.R")
+}, action = "append")
+"""
+            print(f"create {r_profile_file_name}")
+            with open(r_profile_file_name, "w") as f:
+                f.write(r_code)
+
+# Update info.json #
+# Update tags
 tag_list = question_info["tags"]
 if "manual" in tag_list:
     tag_list.remove("manual")
@@ -90,17 +125,15 @@ if args.create_workspace:
         tag_list.append("workspace")
 question_info["tags"] = tag_list
 
-# Remove manual grader unless needed
-if args.question_type != "manual":
+# Update gradingMethod based on question_type
+if args.question_type == "manual":
+    question_info["gradingMethod"] = "Manual"
+    question_info.pop("externalGradingOptions", None)
+else:
     question_info.pop("gradingMethod", None)
 
 if args.question_type == "coding":
-    print("loading template autotests.yml...")
-    with open(args.config_path, "r") as f:
-        autotest_config_dict = yaml.safe_load(f)
-    autograder_info = autotest_config_dict[args.language]["pl"]
-
-    # add external autograder
+    # add external autograder to info.json
     question_info["gradingMethod"] = "External"
     if "externalGradingOptions" not in question_info.keys():
         question_info["externalGradingOptions"] = {
@@ -115,33 +148,11 @@ if args.question_type == "coding":
             ]
     else:
         print("externalGradingOptions already exists in question info.json")
-    # add workspace to info.json
-    if args.create_workspace:
-        question_info["workspaceOptions"] = {
-            "image": autograder_info["workspace_image"],
-            "port": autograder_info["workspace_port"],
-            "args": "",
-            "rewriteUrl": False,
-            "home": autograder_info["workspace_home"],
-            "gradedFiles": [autograder_info["workspace_graded"]],
-        }
 
-    # Check workspace files
     if args.create_workspace:
-        workspace_folder = "{}/workspace".format(question_folder)
-        if os.path.exists(workspace_folder) is False:
-            os.mkdir(workspace_folder)
-        if args.language == "r":
-            r_profile_file_name = "{}/.Rprofile".format(workspace_folder)
-            if os.path.exists(r_profile_file_name) is False:
-                r_code = """setHook("rstudio.sessionInit", function(newSession) {
-  file.edit("submission.R")
-}, action = "append")
-"""
-                print(f"create {r_profile_file_name}")
-                with open(r_profile_file_name, "w") as f:
-                    f.write(r_code)
-
+        question_info["workspaceOptions"]["gradedFiles"] = [
+            autograder_info["workspace_graded"]
+        ]
     # update question.html
     soup = BeautifulSoup(question_html, features="html.parser")
 
@@ -279,6 +290,12 @@ elif args.question_type == "mcq":
                             args.mcq_partial_credict
                         )
             question_html = str(soup)
+else:
+    if args.create_workspace:
+        soup = BeautifulSoup(question_html, features="html.parser")
+        workspace_blocks = soup.find_all("pl-workspace")
+        if len(workspace_blocks) == 0:
+            question_html += "\n<pl-workspace></pl-workspace>\n"
 
 with open("{}/info.json".format(question_folder), "w") as f:
     json.dump(question_info, f, indent=4)
