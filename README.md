@@ -267,12 +267,16 @@ python question_bank/convert_autograde.py --pl_repo <pl_repo> --question_folder 
 
 ### 3.4. Using Workspaces 
 
-our `convert_autograde` script can also be used to create/edit files to use workspace by setting `--create_workspace=True`
-- First please update `autotest.yml` if you want to use specific workspace image 
-- The script will update `info.json` to specify the workspace image and add the `workspace` tag. If the question uses autograder, it would specify the graded files so that the question can still be autograded.  
-- A new folder `workspace` with necessary files will be created automatically 
-- Two html tags `<pl-workspace></pl-workspace>` and `<pl-file-preview></pl-file-preview>` will be added to `question.html`. Please make sure these tags are placed in the correct place. 
-- Finally, if there is the initial code in the question folder, please make sure you copy the files.
+Our `convert_autograde` script can also be used to create/edit files to use workspace by setting `--create_workspace True`. For example:
+```
+python question_bank/convert_autograde.py --pl_repo <pl_repo> --question_folder <question_folder> --question_type coding --create_workspace True --language python
+```
+
+- Please update `autotest.yml` if you want to use specific workspace image.
+- The script will update `info.json` to specify the workspace image and add the `workspace` tag. If the question uses a autograder, the graded files will also be added so that the question can still be autograded.  
+- A new folder `workspace` with necessary files will be created automatically.
+- Some html tags such as `<pl-workspace></pl-workspace>` and `<pl-file-preview></pl-file-preview>` (only for coding question) will be added to `question.html`. Please make sure these tags are placed in the correct place. 
+- Note that if there is already an initial code in the question folder, you need to manually copy the code to the graded file in the workspace folder.
 
 ## 4. Generating test files
 
