@@ -1,0 +1,22 @@
+pl_repo: "pl-ubc-dsci551"
+course_instance: "Winter 1 2024"
+quiz_set: "Quiz"
+quiz_number: "1"
+quiz_title: "Quiz 1"
+quiz_description: ""
+quiz_time: ""
+pl_zones:
+  title: "Lecture 1 to 4"
+  questions:
+    - tags: "calculate-prob+prob-interpretations"
+      numberChoose: 1
+      autoPoints: 2
+    - tags: "stats&mcq"
+      numberChoose: 1
+      autoPoints: 2
+    - tags: "match-dist-family&mcq"
+      numberChoose: 1
+      autoPoints: 2
+    - tags: "specify-dist-parameters"
+      numberChoose: 1
+      autoPoints: 2
