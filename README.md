@@ -385,7 +385,7 @@ python autotest/instantiatetests.py --pl_question_folder <pl_question_folder> --
 
 ## 5. Creating assessments
 
-To create an assessments, you need to first create a `assessment.yml` by modifying the template here.
+To create an assessments, you need to first create a `assessment.yml` by modifying the template [here](https://github.com/VincentLiu3/prairielearn-migrationa-autotest/tree/main/assessment/assessment.yml).
 - Each question will be randomly selected from a subset of questions that have matching tags 
 - `tags` can be a learning objective such as `stats`.
 - `tags` can be a condition such as `stats&mcq` (using `&`). It would find the subset of questions which have both tags `stat` and `mcq`. 
