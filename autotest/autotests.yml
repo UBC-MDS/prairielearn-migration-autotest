@@ -56,7 +56,7 @@ python:
 
           - test: "{{snippet}}"
             check_fn: 'MyFeedback.check_list'
-            point: 1.0
+            point: 0.75
 
         tuple:
           - test: "{{snippet}}"
@@ -65,7 +65,7 @@ python:
 
           - test: "{{snippet}}"
             check_fn: 'Feedback.check_tuple'
-            point: 1.0
+            point: 0.75
 
         DataFrame:
           - test: "{{snippet}}"
