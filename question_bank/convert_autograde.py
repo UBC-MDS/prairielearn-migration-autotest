@@ -39,7 +39,7 @@ assert args.question_type in [
 ]
 assert args.mcq_block in ["none", "checkbox", "multiple-choice"]
 assert args.mcq_partial_credict in ["false", "COV", "EDC", "PC"]
-assert args.language in ["r", "python"]
+assert args.language in ["r", "python", "sql"]
 
 question_folder = "{}/questions/{}".format(args.pl_repo, args.question_folder)
 with open("{}/info.json".format(question_folder), "r") as f:
