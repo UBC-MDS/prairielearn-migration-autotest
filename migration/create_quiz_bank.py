@@ -269,11 +269,9 @@ for course_id in course_dict.keys():
                     # new quiz format
                     template.write('<pl-matching answers-name="match">\n')
                     for choice in question["interaction_data"]["questions"]:
-                        template.write(
-                            f'  <pl-statement match="{question["entry"]["scoring_data"]['value'][choice['id']]}">{choice['item_body']}</pl-statement>\n'
-                        )
-                    template.write("</pl-matching>\n")
-
+                        match_body = question["entry"]["scoring_data"]["value"][choice["id"]]
+                        item_body = choice["item_body"]
+                        template.write(f'  <pl-statement match="{match_body}">{item_body}</pl-statement>\n')                
                 elif question["question_type"] == "choice":
                     # new quiz format
                     template.write('<pl-multiple-choice answers-name="mc">\n')
