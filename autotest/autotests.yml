@@ -14,52 +14,76 @@ python:
         workspace_graded: "user_code.py"
 
 
-    testfile_template: "from code_feedback import Feedback\nfrom pl_helpers import name, points\nfrom utils import source_ans, source_student, MyTestCase\n\n\nclass Test(MyTestCase):\n"
+    testfile_template: "from code_feedback import Feedback\nfrom pl_helpers import name, points\nfrom utils import source_ans, source_student, MyTestCase, MyFeedback\n\n\nclass Test(MyTestCase):\n"
     dispatch: "type({{snippet}})"
-    test_case_template: "    @points({{score}})\n    @name('test case {{count}}')\n    def test_{{count}}(self):\n        ans_env = source_ans({{solution_params}})\n        student_env = source_student({{submission_params}})\n        if Feedback.{{check_fn}}({{test_string}}, eval({{test_expr}}, ans_env), eval({{test_expr}}, student_env)):\n            Feedback.set_score(1)\n        else:\n            Feedback.set_score(0)\n\n"
+    test_case_template: "    @points({{score}})\n    @name('test case {{count}}')\n    def test_{{count}}(self):\n        ans_env = source_ans({{solution_params}})\n        student_env = source_student({{submission_params}})\n        if {{check_fn}}({{test_string}}, eval({{test_expr}}, ans_env), eval({{test_expr}}, student_env)):\n            Feedback.set_score(1)\n        else:\n            Feedback.set_score(0)\n\n"
 
     test_expr_templates:
         scalar:
           - test: "{{snippet}}"
-            check_fn: 'check_scalar'
-            fail: "value of {{snippet}} is not correct"
+            check_fn: 'Feedback.check_scalar'
+            point: 1.0
+
+        int:
+          - test: "{{snippet}}"
+            check_fn: 'Feedback.check_scalar'
             point: 1.0
 
         int64:
           - test: "{{snippet}}"
-            check_fn: 'check_scalar'
-            fail: "value of {{snippet}} is not correct"
+            check_fn: 'Feedback.check_scalar'
+            point: 1.0
+
+        float:
+          - test: "{{snippet}}"
+            check_fn: 'Feedback.check_scalar'
             point: 1.0
 
         float64:
           - test: "{{snippet}}"
-            check_fn: 'check_scalar'
-            fail: "value of {{snippet}} is not correct"
+            check_fn: 'Feedback.check_scalar'
+            point: 1.0
+
+        bool:
+          - test: "{{snippet}}"
+            check_fn: 'MyFeedback.check_bool'
             point: 1.0
 
         list:
           - test: "{{snippet}}"
-            check_fn: 'check_list'
-            fail: "value of {{snippet}} is not correct"
-            point: 1.0
+            check_fn: 'MyFeedback.check_type'
+            point: 0.25
+
+          - test: "{{snippet}}"
+            check_fn: 'MyFeedback.check_list'
+            point: 0.75
 
         tuple:
           - test: "{{snippet}}"
-            check_fn: 'check_tuple'
-            fail: "value of {{snippet}} is not correct"
-            point: 1.0
+            check_fn: 'MyFeedback.check_type'
+            point: 0.25
+
+          - test: "{{snippet}}"
+            check_fn: 'Feedback.check_tuple'
+            point: 0.75
 
         DataFrame:
           - test: "{{snippet}}"
-            check_fn: 'check_dataframe'
-            fail: "value of {{snippet}} is not correct"
-            point: 1.0
+            check_fn: 'MyFeedback.check_type'
+            point: 0.25
+
+          - test: "{{snippet}}"
+            check_fn: 'Feedback.check_dataframe'
+            point: 0.75
 
         ndarray:
           - test: "{{snippet}}"
-            check_fn: 'check_numpy_array_allclose'
-            fail: "value of {{snippet}} is not correct"
-            point: 1.0
+            check_fn: 'MyFeedback.check_type'
+            point: 0.25
+
+          - test: "{{snippet}}"
+            check_fn: 'Feedback.check_numpy_array_allclose'
+            point: 0.75
 
 
 r:
@@ -88,86 +112,86 @@ r:
         default:
             - test: "class({{snippet}})"
               fail: "type of {{snippet}} is not correct"
-              point: 0.5
+              point: 0.1
 
             - test: "{{snippet}}"
               fail: "value of {{snippet}} is not correct"
-              point: 0.5
+              point: 0.9
 
         tbl:
             - test: "class({{snippet}})"
               fail: "type of {{snippet}} is not correct"
-              point: 0.5
+              point: 0.1
 
             - test: "{{snippet}}"
               fail: "value of {{snippet}} is not correct"
-              point: 0.5
+              point: 0.9
 
         data.frame:
             - test: "class({{snippet}})"
               fail: "type of {{snippet}} is not correct"
-              point: 0.5
+              point: 0.1
 
             - test: "{{snippet}}"
               fail: "value of {{snippet}} is not correct"
-              point: 0.5
+              point: 0.9
 
         numeric:
             - test: "class({{snippet}})"
               fail: "type of {{snippet}} is not double"
-              point: 0.25
+              point: 0.1
 
             - test: "round({{snippet}}, 2)"
               fail: "value of {{snippet}} is not correct (rounded to 2 decimal places)"
-              point: 0.25
+              point: 0.3
 
             - test: "length({{snippet}})"
               fail: "length of {{snippet}} is not correct"
-              point: 0.25
+              point: 0.3
 
             - test: "sort({{snippet}})"
               fail: "values of {{snippet}} are not correct"
-              point: 0.25
+              point: 0.3
 
         list:
             - test: "class({{snippet}})"
               fail: "type of {{snippet}} is not list"
-              point: 0.25
+              point: 0.1
 
             - test: "length({{snippet}})"
               fail: "length of {{snippet}} is not correct"
-              point: 0.25
+              point: 0.3
 
             - test: "sort(c(names({{snippet}})))"
               fail: "values of {{snippet}} names are not correct"
-              point: 0.25
+              point: 0.3
 
             - test: "{{snippet}}"
               fail: "order of elements of {{snippet}} is not correct"
-              point: 0.25
+              point: 0.3
 
         character:
             - test: "class({{snippet}})"
               fail: "type of {{snippet}} is not list"
-              point: 0.25
+              point: 0.1
 
             - test: "length({{snippet}})"
               fail: "length of {{snippet}} is not correct"
-              point: 0.25
+              point: 0.3
 
             - test: "tolower({{snippet}})"
               fail: "value of {{snippet}} is not correct"
-              point: 0.25
+              point: 0.3
 
             - test: "{{snippet}}"
               fail: "correct string value of {{snippet}} but incorrect case of letters"
-              point: 0.25
+              point: 0.3
 
         logical:
             - test: "class({{snippet}})"
               fail: "type of {{snippet}} is not logical"
-              point: 0.5
+              point: 0.1
 
             - test: "{{snippet}}"
               fail: "logical value of {{snippet}} is not correct"
-              point: 0.5
+              point: 0.9
