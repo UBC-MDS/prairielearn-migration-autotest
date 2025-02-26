@@ -61,7 +61,7 @@ fi
 # RUN
 ##########################
 
-echo "[run] starting autograder"
+echo "[run.sh] starting autograder"
 
 # randomly generate the name of the results file, so that someone can't guess and write to it
 # write it to a file that is then deleted, so that it can't get picked up by the student
@@ -81,10 +81,17 @@ if [ -f "$SECRET_NAME" ]; then
   mv "$SECRET_NAME" $OUT_DIR/results.json
 fi
 
+if [ -d "${TEST_DIR}" ]; then
+    echo "[run.sh] Directory exists!"
+else
+    echo "[run.sh] Directory does not exist!"
+    echo '{"gradable": false, "score": 0.0, "message": "Grading error! Contact course staff and have them check the logs for this submission."}' > $OUT_DIR/results.json
+fi
+
 # if that didn't work, then print a last-ditch message
 if [ ! -s $OUT_DIR/results.json ]
 then
   echo '{"succeeded": false, "score": 0.0, "message": "Your code could not be processed by the autograder. Please contact course staff and have them check the logs for this submission."}' > $OUT_DIR/results.json
 fi
 
-echo "[run] autograder completed"
+echo "[run.sh] autograder completed"
