@@ -10,7 +10,7 @@ import canvas
 
 def file_name_only(name):
     if name is not None:
-        return re.sub("[\W_]+", "", name)
+        return re.sub("[^a-zA-Z0-9_]+", "", name)
     else:
         return ""
 

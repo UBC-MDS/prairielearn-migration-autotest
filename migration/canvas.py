@@ -17,8 +17,14 @@ class Canvas:
         self.debug = debug
         self.token = os.environ["CANVAS_ACCESS_TOKEN"]
         self.token_header = {"Authorization": f"Bearer {self.token}"}
-
-        self.api_url = "https://canvas.ubc.ca/api/"
+        # This weird logic is needed because when this constructor is called by subclasses,
+        #   it is called with `args==None` and so doesn't have access to `args.config_file`,
+        #   and the other attributes don't seem to exist in the subclass.
+        # Set as class variable so subclasses can inherit it
+        if not hasattr(self.__class__, '_api_url'):
+            self.__class__._api_url = getattr(self, 'config', {}).get("api_url", "https://canvas.ubc.ca/api/")
+        # Now inherit it
+        self.api_url = self.__class__._api_url
         self.url_prefix = "v1"
         self.new_url_prefix = "quiz/v1"
 
